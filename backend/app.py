@@ -29,13 +29,32 @@ def fetch_game(game_id):
         return jsonify({'error': str(e)}), 500
 
     # check if game exists
-    if game == None:
+    if len(game) == 0:
         return jsonify({'message': 'No such game'}), 404
     
     # return game if found
     return jsonify(game), 200
 
+# Endpoint to create a new game
+@app.route('/games', methods=['POST'])
+def create_game():
+    # check if request is json
+    if request.is_json == False:
+        return jsonify({'error': 'Request must be JSON'}), 400
 
+    # get json data, validate required fields
+    data = request.get_json()
+    if data.get('round') is None or data.get('max_round') is None or data.get('modifier') is None:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    # try to create game
+    try:
+        new_game_id = create_new_game(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    # return success message
+    return jsonify({'message': 'Game created', 'game_id': new_game_id}), 201
 
 # Run backend
 if __name__ == '__main__':
