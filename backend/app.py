@@ -60,7 +60,7 @@ def create_game():
 
     # get json data, validate required fields
     data = request.get_json()
-    if data.get('round') is None or data.get('max_round') is None or data.get('modifier') is None:
+    if data.get('players') is None or data.get('config') is None:
         return jsonify({'error': 'Missing required fields'}), 400
 
     # try to create game
