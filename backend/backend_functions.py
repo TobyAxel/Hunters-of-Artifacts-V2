@@ -7,6 +7,7 @@ def _rows_to_dicts(rows):
     return [dict(zip(cols, row)) for row in rows]
 
 ## GAME FUNCTIONS ##
+
 def get_games():
     cursor.execute("SELECT * FROM game")
     rows = cursor.fetchall()
