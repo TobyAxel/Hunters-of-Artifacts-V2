@@ -29,3 +29,9 @@ def create_new_game(data):
     )
     new_game_id = cursor.lastrowid
     return new_game_id
+
+def get_players(game_id):
+    cursor.execute("SELECT * FROM player WHERE game_id = %s", (game_id,))
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+    return results

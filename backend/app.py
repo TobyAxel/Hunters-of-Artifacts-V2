@@ -30,16 +30,32 @@ def fetch_game(game_id):
 
     # check if game exists
     if len(game) == 0:
-        return jsonify({'message': 'No such game'}), 404
+        return jsonify({'message': f'No game with id {game_id} found'}), 404
     
     # return game if found
     return jsonify(game), 200
+
+# Endpoint to check players in game
+@app.route('/games/<int:game_id>/players', methods=['GET'])
+def fetch_game_players(game_id):
+    # fetch game
+    game = fetch_game(game_id)
+
+    # check if game exists
+    if game[1] != 200:
+        return game
+
+    # get players for game
+    players = get_players(game_id)
+
+    # return players
+    return players
 
 # Endpoint to create a new game
 @app.route('/games', methods=['POST'])
 def create_game():
     # check if request is json
-    if request.is_json == False:
+    if not request.is_json:
         return jsonify({'error': 'Request must be JSON'}), 400
 
     # get json data, validate required fields
