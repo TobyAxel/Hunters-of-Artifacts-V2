@@ -1,10 +1,17 @@
-from placeholder_data import games
+from sql_connection import cursor
 
 def get_games():
-    return games
+    cursor.execute("SELECT * FROM game")
+    results = cursor.fetchall()
+    print(f"Query executed. Row count: {cursor.rowcount}")
+    print(f"Results: {results}")
+    print(f"Cursor description: {cursor.description}")
+    return results
 
 def get_game(game_id):
-    for game in games:
-        if game['id'] == game_id:
-            return game
-    return None
+    cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
+    results = cursor.fetchall()
+    print(f"Query executed. Row count: {cursor.rowcount}")
+    print(f"Results: {results}")
+    print(f"Cursor description: {cursor.description}")
+    return results

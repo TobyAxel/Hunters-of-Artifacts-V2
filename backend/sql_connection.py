@@ -10,11 +10,11 @@ try:
         host='127.0.0.1',
         port='3306',
         database='flight_game',
-        user= os.getenv("user"),
-        passwd=os.getenv("password"),
+        user=os.getenv("user"),
+        password=os.getenv("password"),
         autocommit=True
     )
-    cursor = connection.cursogr()
+    cursor = connection.cursor()
     print("Connection established")
 except mysql.connector.errors.ProgrammingError:
     print("Error connecting to database")
