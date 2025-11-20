@@ -3,40 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Hunters of Artifacts</title>
+    <meta name="description"
+        content="Local multiplayer browser game where players compete to earn the most points by the end of the game. Inspired by the games Afrikan Tähti and Mario Party, the game combines unique items, events, and exploration to create a competitive experience.">
+    <meta name="keywords" content="Hunters of Artifacts,browser game,local multiplayer,Afrikan Tähti,Mario Party">
+    <meta name="author" content="Akseli Hyvönen">
 
-    <link href="./assets/styles/main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="">
+    <link href="./assets/styles/main.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Main layout -->
     <main id="layout">
         <div id="tiles-left">
-            <div class="actions-and-map">
+            <div id="actions-and-map">
                 <div id="actions">
                     <div id="game-summary">
+                        <div class="tile">
+                            <span id="player-turn-info" class="font-bold">Players turn</span>
+                            <span id="moves-left-info" class="secondary-font-color">x moves left</span>
+                        </div>
+                        <div class="tile">
+                            <span id="account-balance-info" class="font-bold">x&euro;</span>
+                            <span id="distance-travelled-info" class="secondary-font-color">x km travelled</span>
+                        </div>
                     </div>
-                    <div id="actions-list">
-
+                    <div id="actions-list" class="tile">
+                        <button class="primary-button">1. Explore</button>
+                        <button class="primary-button">2. Travel</button>
+                        <button class="primary-button">3. Items</button>
+                        <button class="primary-button">4. Shop</button>
+                        <button class="primary-button">5. Quit</button>
                     </div>
                 </div>
                 <div id="map">
     
                 </div>
             </div>
-            <div id="console">
-
+            <div id="console" class="tile">
+                Tee jotain
             </div>
         </div>
         <div id="tiles-right">
-            <div id="artifacts">
+            <div id="artifacts" class="tile">
+                <h3>Artifacts</h3>
+                <div id="artifacts-list">
 
+                </div>
             </div>
-            <div id="active-effects">
-            </div>
-            <div id="current-round">
+            <div id="active-effects" class="tile">
+                <h3>Active effects</h3>
+                <div id="active-effects-list">
 
+                </div>
+            </div>
+            <div id="current-round" class="tile">
+                <h3>Current round</h3>
+                <div id="current-round-list">
+
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- Modals -->
+    <dialog id="game-select-modal" class="modal tile">
+        <div id="game-select-header">
+            <h1>Hunters of Artifacts V2</h1>
+            <p>Please select a game or start a new one:</p>
+        </div>
+        <div id="game-list">
+            <button class="primary-button">
+                <h3>Example game 1</h3>
+                <span>Date time</span>
+            </button>
+            <button class="primary-button">
+                <h3>Example game 2</h3>
+                <span>Date time</span>
+            </button>
+        </div>
+        <div>
+            <button class="primary-button">Continue game</button>
+            <button class="primary-button">Create new</button>
+        </div>
+    </dialog>
+
+    <!-- Scripts and libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
     <script src="./assets/scripts/main.js"></script>
 </body>
 </html>
