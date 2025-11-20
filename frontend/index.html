@@ -75,25 +75,19 @@
             <p>Please select a game or start a new one:</p>
         </div>
         <div id="game-list">
-            <button class="primary-button">
-                <h3>Example game 1</h3>
-                <span>Date time</span>
-            </button>
-            <button class="primary-button">
-                <h3>Example game 2</h3>
-                <span>Date time</span>
-            </button>
+
         </div>
         <div>
-            <button class="primary-button">Continue game</button>
-            <button class="primary-button">Create new</button>
+            <button class="primary-button" id="continue-game">Continue game</button>
+            <button class="primary-button" id="create-new">Create new</button>
         </div>
     </dialog>
 
-    <!-- Scripts and libraries -->
+    <!-- Libraries, helpers and main script file -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
+    <script src="./assets/scripts/helpers.js"></script>
     <script src="./assets/scripts/main.js"></script>
 </body>
 </html>

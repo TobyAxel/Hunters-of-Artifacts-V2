@@ -93,7 +93,6 @@ button {
 
 #actions-and-map {
     display: flex;
-    background: yellow;
     flex-grow: 1;
 }
 
