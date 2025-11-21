@@ -1,24 +1,28 @@
 from sql_connection import cursor
 
-## HELPER FUNCTIONS ##
+#---- HELPER FUNCTIONS ----#
 
 def _rows_to_dicts(rows):
     cols = [desc[0] for desc in cursor.description] if cursor.description else []
     return [dict(zip(cols, row)) for row in rows]
 
-## GAME FUNCTIONS ##
+#---- GAME FUNCTIONS ----#
 
-def get_games():
-    cursor.execute("SELECT * FROM game")
+#---- GET ----#
+
+def get_games(game_id = None):
+    cursor.execute("SELECT * FROM game WHERE archived = false AND (%s is NULL OR id = %s)", (game_id, game_id))
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
     return results
 
-def get_game(game_id):
-    cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
+def get_players(game_id):
+    cursor.execute("SELECT * FROM player WHERE game_id = %s", (game_id,))
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
     return results
+
+#---- POST ----#
 
 def create_new_game(data):
     [players, config] = [data.get('players'), data.get('config')]
@@ -36,9 +40,3 @@ def create_new_game(data):
     cursor.execute('UPDATE game SET player_turn = (SELECT id FROM player WHERE game_id = %s LIMIT 1) WHERE id = %s', (new_game_id, new_game_id))
 
     return new_game_id
-
-def get_players(game_id):
-    cursor.execute("SELECT * FROM player WHERE game_id = %s", (game_id,))
-    rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
-    return results
