@@ -31,8 +31,7 @@ const elements = {
     gameSelect: {
         dialog: document.querySelector("dialog#game-select-modal"),
         gameListContainer: document.querySelector("#game-list"),
-        gameOptionButtons: [], // TODO: instead of buttons, consider using radio
-        selectedGameOption: null,
+        gameSelected: null,
         continueGameBtn: document.querySelector("#continue-game"),
         createNewBtn: document.querySelector("#create-new"),
     }
@@ -44,23 +43,35 @@ TODO:
 - if it exists in local storage, check on backend side
  */
 
+function selectGame(e) {
+    const gameId = e.target.value;
+    elements.gameSelect.continueGameBtn.removeAttribute("disabled");
+    elements.gameSelect.gameSelected = gameId;
+}
+
 if(!appState.gameId) {
     /* 
         TODO:
         - fetch appState.gameList from server
     */
     for(const n in appState.gameList) {
-        const gameOption = appState.gameList[n];
-        const newGameOptionButton = createElement("button", {
-           "class": "primary-button", 
+        const game = appState.gameList[n];
+        const newButton = createElement("label", {
+            "type": "radio",
+            "name": "game-select",
+            "value": `${game.id}`,
+            "class": "radio-button-label",
         });
-        newGameOptionButton.innerHTML = `<h3>${gameOption.name}</h3><span>Date time</span>`;
-        elements.gameSelect.gameOptionButtons.push(newGameOptionButton);
-        newGameOptionButton.addEventListener("click", () => selectGame(n));
-    }
-    for(const n in elements.gameSelect.gameOptionButtons) {
-        const button = elements.gameSelect.gameOptionButtons[n];
-        elements.gameSelect.gameListContainer.append(button);
+        const buttonInput = createElement("input", {
+            "type": "radio",
+            "name": "game-select",
+            "value": `${game.id}`,
+            "class": "radio-button",
+        });
+        newButton.addEventListener("change", selectGame);
+        newButton.append(buttonInput);
+        newButton.innerHTML += `<h3>${game.name}</h3><span>Date time</span>`;
+        elements.gameSelect.gameListContainer.append(newButton);
     }
     elements.gameSelect.dialog.showModal();
 }
@@ -70,19 +81,14 @@ TODO:
 - fetch game data and add it into state
  */
 
-function selectGame(gameOption) {
-    /* 
-        TODO:
-        - change color of selected game option button
-    */
-   elements.gameSelect.selectedGameOption = gameOption;
-   elements.gameSelect.dialog.close();
-}
-
-function createGame() {
+function openGame() {
     /* 
         TODO:
         - send a request to create a game on server
         - set new game state
     */
+    appState.gameId = elements.gameSelect.gameSelected;
+    elements.gameSelect.dialog.close();
 }
+
+elements.gameSelect.continueGameBtn.addEventListener("click", openGame);

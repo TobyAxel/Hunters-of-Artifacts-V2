@@ -38,7 +38,7 @@ button {
 
 /* Elements */
 
-.modal {
+.modal[open] {
     position: fixed;
     left: 50%;
     top: 50%;
@@ -68,12 +68,34 @@ button {
     padding: 12px;
 }
 
-.primary-button:hover {
+.primary-button:not(:disabled):hover {
     background: var(--primary-hover-bg);
 }
 
 .primary-button:disabled {
     color: var(--secondary-font-color);
+}
+
+.primary-button:hover:disabled {
+    cursor: default;
+}
+
+.radio-button {
+    background-color: var(--primary-hover-bg);
+    display: none;
+}
+
+.radio-button-label {
+    padding: 12px;
+}
+
+.radio-button-label:hover {
+    background-color: var(--primary-hover-bg);
+    cursor: pointer;
+}
+
+.radio-button-label:has(.radio-button:checked)  {
+    background-color: var(--primary-hover-bg);
 }
 
 /* Layout */
