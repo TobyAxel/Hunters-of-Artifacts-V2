@@ -1,0 +1,196 @@
+/* Color variables */
+
+:root {
+    --primary-bg: #e6e6ff;
+    --primary-hover-bg: #8080ff;
+    --primary-border: #ccccff;
+    --primary-font-color: #0d0d0d;
+    --secondary-font-color: #404040;
+}
+
+/* Font */
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../fonts/IBMPlexSans-VariableFont_wdth,wght.ttf");
+}
+
+/* Main styles and default browser style resets */
+
+body {
+    padding: 0;
+    margin: 0;
+    width: 100wv;
+    height: 100vh;
+    font-family: "IBM Plex Sans", sans-serif;
+    color: var(--primary-font-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-weight: 500;
+}
+
+button {
+    all: unset;
+    cursor: pointer;
+}
+
+/* Elements */
+
+.modal[open] {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    margin: 0;
+}
+
+.modal::backdrop {
+    backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.tile {
+    background: var(--primary-bg);
+    border: solid 1px var(--primary-border);
+}
+
+.secondary-font-color {
+    color: var(--secondary-font-color);
+}
+
+.font-bold {
+    font-weight: 500;
+}
+
+.primary-button {
+    padding: 12px;
+}
+
+.primary-button:not(:disabled):hover {
+    background: var(--primary-hover-bg);
+}
+
+.primary-button:disabled {
+    color: var(--secondary-font-color);
+}
+
+.primary-button:hover:disabled {
+    cursor: default;
+}
+
+.radio-button {
+    background-color: var(--primary-hover-bg);
+    display: none;
+}
+
+.radio-button-label {
+    padding: 12px;
+}
+
+.radio-button-label:hover {
+    background-color: var(--primary-hover-bg);
+    cursor: pointer;
+}
+
+.radio-button-label:has(.radio-button:checked)  {
+    background-color: var(--primary-hover-bg);
+}
+
+/* Layout */
+
+#layout {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#tiles-left {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#actions-and-map {
+    display: flex;
+    flex-grow: 1;
+}
+
+#actions {
+    width: 20%;
+    min-width: 256px;
+    display: flex;
+    flex-direction: column;
+}
+
+#game-summary {
+    display: flex;
+}
+
+#game-summary .tile {
+    flex-grow: 1;
+    padding: 8px;
+}
+
+#game-summary .tile span {
+    display: block;
+}
+
+#actions-list {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#map {
+    flex-grow: 1;
+}
+
+#console {
+    height: 20%;
+}
+
+#tiles-right {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    min-width: 256px;
+}
+
+#artifacts {
+    flex-grow: 1;
+    padding: 12px;
+}
+
+#active-effects {
+    flex-grow: 1;
+    padding: 12px;
+}
+
+#current-round {
+    flex-grow: 1;
+    padding: 12px;
+}
+
+#game-list {
+    display: flex;
+    flex-direction: column;
+}
+
+#game-list button {
+    width: 400px;
+}
+
+#game-select-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 32px 12px;
+}
+
+#game-select-header {
+    text-align: center;
+}
