@@ -42,3 +42,9 @@ def get_players(game_id):
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
     return results
+
+def get_player(player_id):
+    cursor.execute("SELECT * FROM player WHERE id = %s", (player_id,))
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+    return results

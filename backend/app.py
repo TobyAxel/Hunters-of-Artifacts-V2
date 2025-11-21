@@ -51,6 +51,22 @@ def fetch_game_players(game_id):
     # return players
     return players
 
+# Endpoint to get player data
+@app.route('/player/<int:player_id>', method=['GET'])
+def fetch_player(player_id):
+    try:
+        player = get_player(player_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    # check if player exists
+    if len(player) == 0:
+        return jsonify({'message': f'No player with id {player_id} found'}), 404
+
+    # return player if found
+    return jsonify(player), 200
+
+
 # Endpoint to create a new game
 @app.route('/games', methods=['POST'])
 def create_game():
