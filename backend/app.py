@@ -22,7 +22,7 @@ def handle_games():
         return jsonify(games), 200
     
     # handle POST request to create a new game
-    elif request == 'POST':
+    if request.method == 'POST':
         # check if request is json
         if not request.is_json:
             return jsonify({'error': 'Request must be JSON'}), 400
@@ -39,7 +39,9 @@ def handle_games():
             return jsonify({'error': str(e)}), 500
 
         # return success message
-        return jsonify({'message': 'Game created', 'game_id': new_game_id}), 201
+        return jsonify({'message': 'Game created', 'games': new_game_id}), 201
+    
+    return jsonify({'error': 'Invalid request method'}), 405
 
 # Endpoint to fetch a specific game by id
 @app.route('/games/<int:game_id>', methods=['GET'])
@@ -71,16 +73,18 @@ def fetch_game_players(game_id):
     players = get_players(game_id)
 
     # return players
-    return players
+    return players, 200
 
 # Endpoint to end player's turn
 @app.route('/games/<int:game_id>/end-turn', methods=['POST'])
 def end_player_turn(game_id):
+    # try to end turn
     try:
         result = end_turn(game_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+    # return new game state
     return jsonify(result), 200
 
 # Run backend
