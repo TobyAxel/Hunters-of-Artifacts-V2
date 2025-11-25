@@ -5,6 +5,8 @@
   - Gets games by id, or all games if no id is given
 - /games/game_id/players
   - Gets all players in specified game
+- /events/game_id
+  - Gets current event's state, or creates and returns new random event
 
 ### POST
 - /games
@@ -30,6 +32,7 @@
 - Handle scoring
 - Get player whose turn it is
 - Shop functionalities
+- Make event creator check if player has remaining moves
 
 ## NOTE
 - Haven't updated dump yet, run this in mariadb
