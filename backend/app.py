@@ -84,7 +84,7 @@ def fetch_events(game_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-    return jsonify(event), 200
+    return jsonify({'message': event}), 200
 
 # Run backend
 if __name__ == '__main__':

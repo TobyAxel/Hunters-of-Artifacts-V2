@@ -54,6 +54,7 @@ def get_event(game_id):
         event_id = random.randint(0, len(event_list) - 1)
         cursor.execute("UPDATE game SET event_id = %s, event_state = 0 WHERE id = %s", (event_id, game_id,))
         event = event_list[event_id]
-        return event['states'][0]
+        return event.states[0].text
     else:
-        return event_list[results[0]['event_id']]['states'][results[0]['event_state']]
+        event = event_list[results[0]['event_id']]
+        return event.states[results[0]['event_state']].text
