@@ -87,6 +87,20 @@ def end_player_turn(game_id):
     # return new game state
     return jsonify(result), 200
 
+#endpoint events
+@app.route('/events/<int:game_id>', methods=['GET'])
+def fetch_events(game_id):
+    game = fetch_game(game_id)
+    if game[1] != 200:
+        return game
+
+    try:
+        event = get_event(game_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({'message': event}), 200
+
 # Run backend
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=3000)
