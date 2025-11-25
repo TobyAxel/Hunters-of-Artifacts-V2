@@ -75,6 +75,46 @@ def fetch_game_players(game_id):
     # return players
     return players, 200
 
+# Endpoint to get / create event or update event state
+@app.route('/events/<int:game_id>', methods=['GET', 'POST'])
+def handle_events(game_id):
+    # try to fetch game
+    game = fetch_game(game_id)
+    if game[1] != 200:
+        return game
+
+    # handle GET Request to get / create event
+    if request.method == 'GET':
+        # try to fetch event state
+        try:
+            event = get_event(game_id)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+        # return event state
+        return jsonify({'event': event}), 200
+
+    # Handle POST request to update event state
+    if request.method == 'POST':
+        # check if request is json
+        if not request.is_json:
+            return jsonify({'error': 'Request must be JSON'}), 400
+
+        # get json data, validate required field
+        data = request.get_json()
+        if data.get('event_option') is None:
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        # try to update game state
+        try:
+            new_event_state = update_event(data, game_id)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+        return jsonify({'event': new_event_state}), 200
+
+    return jsonify({'error': 'Invalid request method'}), 405
+
 # Endpoint to end player's turn
 @app.route('/games/<int:game_id>/end-turn', methods=['POST'])
 def end_player_turn(game_id):
@@ -86,20 +126,6 @@ def end_player_turn(game_id):
     
     # return new game state
     return jsonify(result), 200
-
-#endpoint events
-@app.route('/events/<int:game_id>', methods=['GET'])
-def fetch_events(game_id):
-    game = fetch_game(game_id)
-    if game[1] != 200:
-        return game
-
-    try:
-        event = get_event(game_id)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    return jsonify({'message': event}), 200
 
 # Run backend
 if __name__ == '__main__':
