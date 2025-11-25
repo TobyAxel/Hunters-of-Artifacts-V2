@@ -8,4 +8,4 @@ def add_money(amount, game_id):
 
     cursor.execute("UPDATE player set balance = balance + %s WHERE id = (SELECT player_turn FROM game WHERE id = %s)", (amount,game_id,))
 
-    return f"You {got_lost} {amount}€."
+    return f"You {got_lost} {amount}€.\n"

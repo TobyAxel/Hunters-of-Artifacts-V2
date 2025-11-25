@@ -7,6 +7,7 @@
   - Gets all players in specified game
 - /events/game_id
   - Gets current event's state, or creates and returns new random event
+  - Disallows starting an event if no moves are left
 
 ### POST
 - /games
@@ -23,16 +24,22 @@
         }
     }
     ```
+- /events/game_id
+  - Updates event by running users option
+  - Returns new event state
+    ```
+    {
+        "event_option": int
+    }
+    ```
 - /games/game_id/end-turn
     - Ends player's turn, and returns next turn's relevant info
 
 ## Backend endpoint TODO
 - Handle items
-- Handle events
 - Handle scoring
 - Get player whose turn it is
 - Shop functionalities
-- Make event creator check if player has remaining moves
 
 ## NOTE
 - Haven't updated dump yet, run this in mariadb

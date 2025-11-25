@@ -25,23 +25,23 @@ def get_players(game_id):
     results = _rows_to_dicts(rows)
     return results
 
-def get_players(game_id):
-    cursor.execute("SELECT * FROM player WHERE game_id = %s", (game_id,))
-    rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
-    return results
-
 def get_event(game_id):
     cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
 
-    if results[0]['event_id'] == None:
+    # Check if player is out of moves
+    if results[0]['moves'] == 0 and results[0]['event_id'] is None:
+        return "Not enough moves to explore more."
+
+    # Check if there is an event already going on
+    if results[0]['event_id'] is None:
         event_id = random.randint(0, len(event_list) - 1)
-        cursor.execute("UPDATE game SET event_id = %s, event_state = 0 WHERE id = %s", (event_id, game_id,))
+        cursor.execute("UPDATE game SET event_id = %s, event_state = 0, moves = moves - 1 WHERE id = %s", (event_id, game_id,))
         event = event_list[event_id]
         return event.states[0].text
 
+    # Display existing event's state
     else:
         event = event_list[results[0]['event_id']]
         return event.states[results[0]['event_state']].text
@@ -97,3 +97,34 @@ def end_turn(game_id):
     game = get_games(game_id)
 
     return game
+
+def update_event(data, game_id):
+    # Get option
+    event_option = data.get('event_option') - 1
+
+    # Get current event & state from db
+    cursor.execute("SELECT event_id, event_state FROM game WHERE id = %s", (game_id,))
+    rows = cursor.fetchall()
+    event_in_db = _rows_to_dicts(rows)
+
+    # Check if there is an active event
+    if event_in_db[0]['event_id'] is None:
+        return "No event is active."
+
+    # Get current event, current event state, event choice
+    current_event = event_list[event_in_db[0]['event_id']]
+    event_state = current_event.states[event_in_db[0]['event_state']]
+    event_choice = event_state.choices[event_option]
+
+    # Perform choice function if function is given and update new state to db
+    flavor = ""
+    if event_choice.function is not None:
+        flavor = event_choice.perform_func(game_id)
+    if event_choice.next_state == "final":
+        cursor.execute("UPDATE game SET event_id = NULL, event_state = NULL WHERE id = %s", (game_id,))
+        return ""
+    else:
+        cursor.execute("UPDATE game SET event_state = %s WHERE id = %s", (event_choice.next_state, game_id))
+        # Flavor text from whatever event did and new event state
+        final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
+        return final_string
