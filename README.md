@@ -37,3 +37,5 @@
 - Haven't updated dump yet, run this in mariadb
 - ALTER TABLE game
     -> ADD archived bool;
+- alter table game add column event_id int;
+- alter table game add column event_state int;
