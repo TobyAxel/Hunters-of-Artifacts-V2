@@ -3,28 +3,52 @@ from backend_functions import *
 
 app = Flask(__name__)
 
-# Endpoint to fetch all games
-@app.route('/games', methods=['GET'])
-def fetch_games():
-    # try to fetch games
-    try:
-        games = get_games()
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-    # check if existing games are found
-    if len(games) == 0:
-        return jsonify({'message': 'No games found'}), 200
+# Endpoint to fetch all games or create a new game
+@app.route('/games', methods=['GET', 'POST'])
+def handle_games():
+    # handle GET request to fetch all games
+    if request.method == 'GET':
+        # try to fetch games
+        try:
+            games = get_games()
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+        
+        # check if existing games are found
+        if len(games) == 0:
+            return jsonify({'message': 'No games found'}), 200
 
-    # return games if any are found
-    return jsonify(games), 200
+        # return games if any are found
+        return jsonify(games), 200
+    
+    # handle POST request to create a new game
+    if request.method == 'POST':
+        # check if request is json
+        if not request.is_json:
+            return jsonify({'error': 'Request must be JSON'}), 400
+
+        # get json data, validate required fields
+        data = request.get_json()
+        if data.get('players') is None or data.get('config') is None:
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        # try to create game
+        try:
+            new_game_id = create_new_game(data)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+        # return success message
+        return jsonify({'message': 'Game created', 'games': new_game_id}), 201
+    
+    return jsonify({'error': 'Invalid request method'}), 405
 
 # Endpoint to fetch a specific game by id
 @app.route('/games/<int:game_id>', methods=['GET'])
 def fetch_game(game_id):
     # try to fetch game
     try:
-        game = get_game(game_id)
+        game = get_games(game_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -49,28 +73,19 @@ def fetch_game_players(game_id):
     players = get_players(game_id)
 
     # return players
-    return players
+    return players, 200
 
-# Endpoint to create a new game
-@app.route('/games', methods=['POST'])
-def create_game():
-    # check if request is json
-    if not request.is_json:
-        return jsonify({'error': 'Request must be JSON'}), 400
-
-    # get json data, validate required fields
-    data = request.get_json()
-    if data.get('players') is None or data.get('config') is None:
-        return jsonify({'error': 'Missing required fields'}), 400
-
-    # try to create game
+# Endpoint to end player's turn
+@app.route('/games/<int:game_id>/end-turn', methods=['POST'])
+def end_player_turn(game_id):
+    # try to end turn
     try:
-        new_game_id = create_new_game(data)
+        result = end_turn(game_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-    # return success message
-    return jsonify({'message': 'Game created', 'game_id': new_game_id}), 201
+    
+    # return new game state
+    return jsonify(result), 200
 
 #endpoint events
 @app.route('/events/<int:game_id>', methods=['GET'])

@@ -1,11 +1,9 @@
 ## Endpoints
 
 ### GET
-- /games
-  - Gets all games in database
-- /games/id
-  - Gets game by id which is in form int
-- /games/id/players
+- /games/game_id
+  - Gets games by id, or all games if no id is given
+- /games/game_id/players
   - Gets all players in specified game
 
 ### POST
@@ -23,19 +21,18 @@
         }
     }
     ```
+- /games/game_id/end-turn
+    - Ends player's turn, and returns next turn's relevant info
 
-## Backend endpoint requirements
-- Loading data
-- Get/Update stats
-- Get/Update location
-- Get/Update items
-- Get event
-- Manage game state
-- Handle travel
+## Backend endpoint TODO
+- Handle items
+- Handle events
+- Handle scoring
+- Get player whose turn it is
+- Shop functionalities
 
 ## NOTE
 - Haven't updated dump yet, run this in mariadb
-- ALTER TABLE game
-    -> ADD archived bool;
+- ALTER TABLE game ADD archived bool
 - alter table game add column event_id int;
 - alter table game add column event_state int;
