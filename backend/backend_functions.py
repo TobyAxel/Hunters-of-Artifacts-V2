@@ -1,4 +1,6 @@
 from sql_connection import cursor
+from events.events import *
+import random
 
 ## HELPER FUNCTIONS ##
 
@@ -42,3 +44,17 @@ def get_players(game_id):
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
     return results
+
+def get_event(game_id):
+    cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+
+    if results[0]['event_id'] == None:
+        event_id = random.randint(0, len(event_list) - 1)
+        cursor.execute("UPDATE game SET event_id = %s, event_state = 0 WHERE id = %s", (event_id, game_id,))
+        event = event_list[event_id]
+        return event.states[0].text
+    else:
+        event = event_list[results[0]['event_id']]
+        return event.states[results[0]['event_state']].text
