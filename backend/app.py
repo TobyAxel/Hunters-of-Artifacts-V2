@@ -115,6 +115,30 @@ def handle_events(game_id):
 
     return jsonify({'error': 'Invalid request method'}), 405
 
+# Endpoint to get shop items
+@app.route('/shop/<int:game_id>', methods=['GET'])
+def fetch_shop(game_id):
+    # try to fetch game
+    try:
+        game = get_games(game_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    # check if game exists
+    if len(game) == 0:
+        return jsonify({'message': f'No game with id {game_id} found'}), 404
+
+    # Check if shop is opened
+    if game[0]['max_round'] / 2 > game[0]['round']:
+        return jsonify({'message': f'Shop is not opened yet.'}), 200
+
+    try:
+        shop_items = get_shop_items()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({'shop': shop_items}), 200
+
 # Endpoint to end player's turn
 @app.route('/games/<int:game_id>/end-turn', methods=['POST'])
 def end_player_turn(game_id):

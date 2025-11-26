@@ -1,5 +1,6 @@
 from sql_connection import cursor
 from events.events import *
+from items.item_list import *
 import random
 
 #---- HELPER FUNCTIONS ----#
@@ -46,8 +47,22 @@ def get_event(game_id):
         event = event_list[results[0]['event_id']]
         return event.states[results[0]['event_state']].text
 
- 
-  
+def get_shop_items():
+    item_prices = {
+        'common': 600,
+        'rare': 1200,
+        'epic': 1800,
+        'legendary': 2400
+    }
+
+    items = "0. exit\n"
+    i = 1
+    for item in item_list:
+        if item.rarity != 'artifact':
+            items += f"{i}. {item.name} - {item_prices[item.rarity]}€\n"
+
+    return items
+
 #---- POST ----#
 
 def create_new_game(data):
