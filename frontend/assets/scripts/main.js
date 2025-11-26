@@ -12,19 +12,9 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 // State
 
 const appState = {
+    backendBaseUrl: "http://127.0.0.1:3000",
     gameId: null,
-    gameList: [
-        {
-            id: 0,
-            name: "Example game 0",
-            created_at: 1763677334,
-        },
-        {
-            id: 1,
-            name: "Example game 1",
-            created_at: 1763675221,
-        },
-    ]
+    gameList: [],
 };
 
 const elements = {
@@ -44,16 +34,25 @@ TODO:
  */
 
 function selectGame(e) {
+    console.log("hi");
     const gameId = e.target.value;
     elements.gameSelect.continueGameBtn.removeAttribute("disabled");
     elements.gameSelect.gameSelected = gameId;
 }
 
-if(!appState.gameId) {
-    /* 
-        TODO:
-        - fetch appState.gameList from server
-    */
+async function main() {
+    if(!appState.gameId) {
+        await showGameSelect();
+    }
+}
+
+async function showGameSelect() {
+    // set appState.gameList
+    await fetch(`${appState.backendBaseUrl}/games`).then(async (req) => {
+        appState.gameList = await req.json();
+    });
+
+    // display in modal
     for(const n in appState.gameList) {
         const game = appState.gameList[n];
         const newButton = createElement("label", {
@@ -70,9 +69,11 @@ if(!appState.gameId) {
         });
         newButton.addEventListener("change", selectGame);
         newButton.append(buttonInput);
-        newButton.innerHTML += `<h3>${game.name}</h3><span>Date time</span>`;
+        newButton.innerHTML += `<h3>${game.name}</h3><span>${game.created_at}</span>`;
         elements.gameSelect.gameListContainer.append(newButton);
     }
+
+    // show modal (dialog)
     elements.gameSelect.dialog.showModal();
 }
 
@@ -92,3 +93,5 @@ function openGame() {
 }
 
 elements.gameSelect.continueGameBtn.addEventListener("click", openGame);
+
+main();
