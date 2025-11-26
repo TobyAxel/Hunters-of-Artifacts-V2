@@ -91,7 +91,7 @@ def end_turn(game_id):
     round_passed = 1 if next_index == 0 else 0
 
     # Update game with next player's turn
-    cursor.execute("UPDATE game SET player_turn = %s, round = round + %s WHERE id = %s", (next_player_id, round_passed, game_id))
+    cursor.execute("UPDATE game SET player_turn = %s, round = round + %s, moves = 2 WHERE id = %s", (next_player_id, round_passed, game_id))
 
     # Return updated game state
     game = get_games(game_id)
