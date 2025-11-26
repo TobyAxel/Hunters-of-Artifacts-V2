@@ -184,7 +184,7 @@ button {
     width: 400px;
 }
 
-#game-select-modal {
+#game-select-modal-inner {
     display: flex;
     flex-direction: column;
     align-items: center;

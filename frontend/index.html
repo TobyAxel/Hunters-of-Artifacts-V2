@@ -70,18 +70,20 @@
 
     <!-- Modals -->
     <dialog id="game-select-modal" class="modal tile">
-        <div id="game-select-header">
-            <h1>Hunters of Artifacts V2</h1>
-            <p>Please select a game or start a new one:</p>
-        </div>
-        <div id="game-list">
-
-        </div>
-        <div>
-            <!-- Adding autocomplete="off" will make the button always disabled on page refresh -->
-            <!-- Refer here: https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing -->
-            <button class="primary-button" id="continue-game" disabled autocomplete="off">Continue game</button>
-            <button class="primary-button" id="create-new">Create new</button>
+        <div id="game-select-modal-inner">
+            <div id="game-select-header">
+                <h1>Hunters of Artifacts V2</h1>
+                <p>Please select a game or start a new one:</p>
+            </div>
+            <div id="game-list">
+    
+            </div>
+            <div>
+                <!-- Adding autocomplete="off" will make the button always disabled on page refresh -->
+                <!-- Refer here: https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing -->
+                <button class="primary-button" id="continue-game" disabled autocomplete="off">Continue game</button>
+                <button class="primary-button" id="create-new">Create new</button>
+            </div>
         </div>
     </dialog>
 
