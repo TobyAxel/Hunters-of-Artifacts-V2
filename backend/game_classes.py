@@ -15,3 +15,15 @@ class Choice:
 
     def perform_func(self, game_id):
         return self.function(*self.arguments, game_id)
+
+class Item:
+    def __init__(self, name, description, usable, duration, rarity, func):
+        self.name = name
+        self.description = description
+        self.usable = usable
+        self.duration = duration
+        self.rarity = rarity
+        self.func = func
+
+    def perform_func(self, game_id):
+        return self.func(game_id, self.duration, self.usable)
