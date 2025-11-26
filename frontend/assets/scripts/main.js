@@ -34,7 +34,6 @@ TODO:
  */
 
 function selectGame(e) {
-    console.log("hi");
     const gameId = e.target.value;
     elements.gameSelect.continueGameBtn.removeAttribute("disabled");
     elements.gameSelect.gameSelected = gameId;
@@ -67,9 +66,11 @@ async function showGameSelect() {
             "value": `${game.id}`,
             "class": "radio-button",
         });
+        const date = new Date(game.created_at);
+        const displayDate = `${date.toLocaleDateString("fi-fi")} ${date.toLocaleTimeString("fi-fi", { hour: "2-digit", minute: "2-digit" })}`;
         newButton.addEventListener("change", selectGame);
         newButton.append(buttonInput);
-        newButton.innerHTML += `<h3>${game.name}</h3><span>${game.created_at}</span>`;
+        newButton.innerHTML += `<h3>${game.name}</h3><span>${displayDate}</span>`;
         elements.gameSelect.gameListContainer.append(newButton);
     }
 
