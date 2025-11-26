@@ -24,6 +24,11 @@ const elements = {
         gameSelected: null,
         continueGameBtn: document.querySelector("#continue-game"),
         createNewBtn: document.querySelector("#create-new"),
+    },
+    gameCreate: {
+        dialog: document.querySelector("dialog#game-create-modal"),
+        form: document.querySelector("form#game-create-form"),
+        backBtn: document.querySelector("#back-to-game-select"),
     }
 };
 
@@ -51,7 +56,7 @@ async function showGameSelect() {
         appState.gameList = await req.json();
     });
 
-    // display in modal
+    // display games in modal
     for(const n in appState.gameList) {
         const game = appState.gameList[n];
         const newButton = createElement("label", {
@@ -93,6 +98,53 @@ function openGame() {
     elements.gameSelect.dialog.close();
 }
 
+// Event listener functions
+
+function switchToGameCreate() {
+    console.log("hi");
+    elements.gameSelect.dialog.close();
+    elements.gameCreate.dialog.showModal();
+}
+
+function switchToGameSelect() {
+    elements.gameCreate.dialog.close();
+    elements.gameSelect.dialog.showModal();
+}
+
+async function gameCreateSubmit(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const formObject = Object.fromEntries(formData.entries());
+    const players = Array.from(e.target.querySelectorAll("input[name=players]")).map(input => input.value);
+    const finalFormObject = {
+        players: players,
+        config: {
+            name: formObject.name,
+            max_round: formObject.max_round,
+            modifier: formObject.modifier,
+            starting_distance: formObject.starting_distance,
+            starting_balance: formObject.starting_balance,
+            starting_location: formObject.starting_location,
+        }
+    }
+
+    await fetch(`${appState.backendBaseUrl}/games`, {
+        method: "POST",
+        body: JSON.stringify(finalFormObject),
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+    }).then(async (req) => {
+        appState.gameList = await req.json();
+    });
+}
+
+// Event listeners
 elements.gameSelect.continueGameBtn.addEventListener("click", openGame);
+elements.gameSelect.createNewBtn.addEventListener("click", switchToGameCreate);
+elements.gameCreate.backBtn.addEventListener("click", switchToGameSelect);
+elements.gameCreate.form.addEventListener("submit", gameCreateSubmit);
 
 main();
