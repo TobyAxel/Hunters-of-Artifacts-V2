@@ -17,6 +17,9 @@ def get_games(game_id = None):
     cursor.execute("SELECT * FROM game WHERE archived = false AND (%s is NULL OR id = %s)", (game_id, game_id))
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
+    # convert datetime to iso format
+    for res in results:
+        res["created_at"] = res["created_at"].isoformat()
     return results
 
 def get_players(game_id):
@@ -52,12 +55,12 @@ def get_event(game_id):
 
 def create_new_game(data):
     # Get players and config
-    [players, config] = [data.get('players'), data.get('config')]
+    [name, players, config] = [data.get('name'), data.get('players'), data.get('config')]
 
     # Create game
     cursor.execute(
-        "INSERT INTO game (round, max_round, moves, modifier, archived) VALUES (1, %s, 2, %s, false)",
-        (config['max_round'], config['modifier'])
+        "INSERT INTO game (name, round, max_round, moves, modifier, archived) VALUES (%s, 1, %s, 2, %s, false)",
+        (config['name'], config['max_round'], config['modifier'])
     )
     new_game_id = cursor.lastrowid
 
