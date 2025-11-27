@@ -120,23 +120,9 @@
                         <label for="starting-location">Starting location (ICAO):</label>
                         <input type="text" name="starting_location" id="starting-location" placeholder="EFHK" required />
                     </div>
-                    <div class="inputs">
-                        <div class="input-wrap">
-                            <label for="player-1">Player 1:</label>
-                            <div class="input-with-button-wrap">
-                                <input type="text" name="players" id="player-1" placeholder="Matti" required />
-                                <button type="button" class="material-icons">close</button>
-                            </div>
-                        </div>
-                        <div class="input-wrap">
-                            <label for="player-2">Player 2:</label>
-                            <div class="input-with-button-wrap">
-                                <input type="text" name="players" id="player-2" placeholder="Matti" required />
-                                <button type="button" class="material-icons">close</button>
-                            </div>
-                        </div>
+                    <div id="player-inputs" class="inputs">
                     </div>
-                    <button type="button" class="primary-button">Add another player</button>
+                    <button type="button" class="primary-button" id="add-player-input">Add another player</button>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="primary-button" id="back-to-game-select">Back</button>
