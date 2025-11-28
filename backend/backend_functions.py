@@ -60,7 +60,7 @@ def create_new_game(data):
     # Create game
     cursor.execute(
         "INSERT INTO game (name, round, max_round, moves, modifier, archived) VALUES (%s, 1, %s, 2, %s, false)",
-        (config['name'], config['max_round'], config['modifier'])
+        (name, config['max_round'], config['modifier'])
     )
     new_game_id = cursor.lastrowid
 
