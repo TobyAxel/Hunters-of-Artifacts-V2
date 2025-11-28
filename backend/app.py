@@ -52,7 +52,7 @@ def fetch_game_players(game_id):
     return players
 
 # Endpoint to get player data
-@app.route('/player/<int:player_id>', method=['GET'])
+@app.route('/player/<int:player_id>',method=['GET'])
 def fetch_player(player_id):
     try:
         player = get_player(player_id)
@@ -88,6 +88,21 @@ def create_game():
     # return success message
     return jsonify({'message': 'Game created', 'game_id': new_game_id}), 201
 
+#@app.route('/player/int:player_id/items', method=['GET'])
+#def GetItems(items):
+
+   #try:
+       #items = items[0]
+
+   #except Exception as e:
+    #GetItems
+
+
+
+
+#@app.route('player/int:player_id/active_effects')
+
+#@app.route('airports/int:distance/int[]:point')
 # Run backend
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=3000)
