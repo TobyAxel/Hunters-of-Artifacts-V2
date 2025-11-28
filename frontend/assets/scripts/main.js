@@ -188,8 +188,8 @@ async function gameCreateSubmit(e) {
     // Convert data into endpoint's required format
     const finalFormObject = {
         players: players,
+        name: formObject.name,
         config: {
-            name: formObject.name,
             max_round: formObject.max_round,
             modifier: formObject.modifier,
             starting_distance: formObject.starting_distance,
