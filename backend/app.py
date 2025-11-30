@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from backend_functions import *
-
 app = Flask(__name__)
 
 # Endpoint to fetch all games
@@ -88,21 +87,42 @@ def create_game():
     # return success message
     return jsonify({'message': 'Game created', 'game_id': new_game_id}), 201
 
-#@app.route('/player/int:player_id/items', method=['GET'])
-#def GetItems(items):
+#Placeholder for items code?
+@app.route('/player/int:player_id/items', method=['GET'])
+def GetItems(items):
+    items = items[0]
+    try:
+        if items[0] == None:
+            print(items[-1])
 
-   #try:
-       #items = items[0]
+    except Exception as e:
+        if len(GetItems[0]) == 0:
+            return jsonify({'message': 'No games found'}), 200
 
-   #except Exception as e:
-    #GetItems
+        return jsonify({'error': str(e)}), 500
+
+    return items[-1]
+
+
+@app.route('/player/int:player_id/active_effects', method=['GET'])
+def active_effects(player_id, active_effect):
+    active_effect = list
+    player_id = get_player(player_id)
+    for player in player_id:
+        player_id.append(player_id[player])
+        player += 1
+        return player_id
+    player_active_effects = {
+        "Player": player_id, "Effects": active_effect[0]
+    }
+    return player_active_effects
+@app.route('airports/int:distance/int[]:point')
+def point(x, y):
+    x = math.pi * 2 * x
+    return (x, y)
 
 
 
-
-#@app.route('player/int:player_id/active_effects')
-
-#@app.route('airports/int:distance/int[]:point')
 # Run backend
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=3000)

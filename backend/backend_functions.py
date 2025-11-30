@@ -1,5 +1,8 @@
 from sql_connection import cursor
+from decorator import append
 import random
+import math
+
 ## HELPER FUNCTIONS ##
 
 def _rows_to_dicts(rows):
