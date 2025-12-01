@@ -1,5 +1,7 @@
 from backend.sql_connection import *
+import random
 
+#Function adds or deducts money
 def add_money(amount, game_id):
     if amount < 0:
         got_lost = "lost"
@@ -10,6 +12,17 @@ def add_money(amount, game_id):
 
     return f"You {got_lost} {amount}€.\n"
 
+#Function adds or deducts money based on chance
+def add_money_chance(amount_won, amount_lost, chance, game_id):
+    roll = random.randint(1, 100)
+    if roll < chance:
+        cursor.execute("UPDATE player set balance = balance + %s WHERE id = (SELECT player_turn FROM game WHERE id = %s)",(amount_won,game_id))
+        return f"You got {amount_won}€.\n"
+    else:
+        cursor.execute("UPDATE player set balance = balance - %s WHERE id = (SELECT player_turn FROM game WHERE id = %s)",(amount_lost, game_id,))
+        return f"You lost {amount_lost}€.\n"
+
+#Function adds an item
 def add_item(item, game_id):
     if item.rarity == 'artifact':
         cursor.execute("SELECT * FROM item WHERE rarity = 'artifact' WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
@@ -18,4 +31,23 @@ def add_item(item, game_id):
             if item.name == artifact[1]:
                 return 'artifact is already owned!'
     cursor.execute("INSERT INTO item VALUES (%s, (SELECT player_turn FROM game WHERE id = %s), %s)", (item.name, game_id, item.rarity))
-    return f"You gained a {item.name}"
+    return f"You gained a {item.name}\n"
+
+#Function adds an item or money based on chance
+def add_item_money(item, chance, amount, game_id):
+    roll = random.randint(1, 100)
+    if roll <= chance:
+        add_item(item, game_id)
+    else:
+        add_money(amount, game_id)
+
+#Function adds an item and deducts the money for it
+def buy_item(item, amount, game_id):
+    cursor.execute("SELECT balance FROM player WHERE id = (SELECT player_turn FROM game WHERE id = %s)", (amount,game_id,))
+    balance = cursor.fetchall()
+    if balance >= amount:
+        cursor.execute("UPDATE player set balance = balance - %s WHERE id = (SELECT player_turn FROM game WHERE id = %s)",(amount, game_id,))
+        cursor.execute("INSERT INTO item VALUES (%s, (SELECT player_turn FROM game WHERE id = %s), %s)",(item.name, game_id, item.rarity))
+        return f"You bought {item.name} for {amount}€."
+    else:
+        return "You don't have enough money."

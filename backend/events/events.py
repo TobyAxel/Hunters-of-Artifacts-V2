@@ -1,20 +1,12 @@
-from backend.game_classes import *
-from backend.events.event_funcs import *
+from backend.events.common_events import *
 import random
 
-gambler_event = Event([
-    State("You meet a gambler. Gamble?\n1. Yes\n2. No", [
-        Choice(add_money, [random.randint(-1000, 1000)], 2),
-        Choice(None, None, 1),
-    ]),
-    State("You choose not to partake in unauthorized gambling.\nPress enter to continue...", [
-        Choice(None, None, "final"),
-    ]),
-    State("Press enter to continue...", [
-        Choice(None, None, "final"),
-    ])
-])
-
 event_list = [
-    gambler_event
-]
+    gambler_event,
+    hidden_terminal_pass_event,
+    cash_on_floor_event,
+    risky_stash_event,
+    energy_drink_event,
+    broken_atm_event,
+    Street_musician_event,
+    broken_vending_machine_event]
