@@ -62,7 +62,13 @@ def get_event(game_id):
 
 
 def get_items(player_id):
-    cursor.execute(f"SELECT * FROM item WHERE player_id = {player_id}")
+    cursor.execute("SELECT * FROM item WHERE player_id = %s", [player_id,])
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+    return results
+
+def get_active_effects(player_id):
+    cursor.execute("SELECT * FROM active_effect WHERE player_id = %s", [player_id,])
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
     return results

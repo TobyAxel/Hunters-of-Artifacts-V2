@@ -172,11 +172,21 @@ def end_player_turn(game_id):
     # return new game state
     return jsonify(result), 200
 
-#Placeholder for items code?
 @app.route('/player/items/<int:player_id>', methods=['GET'])
-def items(player_id):
-    player_items = get_items(player_id)
-    return player_items
+def player_items(player_id):
+    try:
+        result = get_items(player_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify(result), 200
+
+@app.route('/player/active-effects/<int:player_id>', methods=['GET'])
+def player_active_effects(player_id):
+    try:
+        result = get_active_effects(player_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify(result), 200
 
 # Run backend
 if __name__ == '__main__':
