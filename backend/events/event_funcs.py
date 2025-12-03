@@ -17,5 +17,5 @@ def add_item(item, game_id):
         for artifact in owned_artifacts:
             if item.name == artifact[1]:
                 return 'artifact is already owned!'
-    cursor.execute("INSERT INTO item VALUES (%s, (SELECT player_turn FROM game WHERE id = %s), %s)", (item.name, game_id, item.rarity))
+    cursor.execute("INSERT INTO item VALUES (DESCRIBE, %s, (SELECT player_turn FROM game WHERE id = %s), %s)", (item.name, game_id, item.rarity))
     return f"You gained a {item.name}"

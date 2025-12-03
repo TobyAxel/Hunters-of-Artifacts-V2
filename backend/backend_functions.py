@@ -1,5 +1,6 @@
 from sql_connection import cursor
 from events.events import *
+from events.event_funcs import *
 from items.item_list import *
 import random
 
@@ -47,7 +48,19 @@ def get_event(game_id):
         event = event_list[results[0]['event_id']]
         return event.states[results[0]['event_state']].text
 
-def get_shop_items():
+def get_shop_items(game):
+    # Check what state shop is in
+    (max_round, current_round) = (game['max_round'], game['round'])
+    if current_round / max_round <= 0.25:
+        include = ['common']
+    elif current_round / max_round <= 0.5:
+        include = ['common', 'rare']
+    elif current_round / max_round <= 0.75:
+        include = ['common', 'rare', 'epic']
+    else:
+        include = ['common', 'rare', 'epic', 'legendary']
+
+    # Set item prices
     item_prices = {
         'common': 600,
         'rare': 1200,
@@ -55,11 +68,13 @@ def get_shop_items():
         'legendary': 2400
     }
 
-    items = "0. exit\n"
+    # Create items into list
+    items = [{'id': 0, 'name': 'exit', 'price': 0, 'rarity': ''}]
     i = 1
     for item in item_list:
-        if item.rarity != 'artifact':
-            items += f"{i}. {item.name} - {item_prices[item.rarity]}€\n"
+        if item.rarity != 'artifact' and item.rarity in include:
+            items.append({'id': i, 'name': item.name, 'price': item_prices[item.rarity], 'rarity': item.rarity})
+            i += 1
 
     return items
 
@@ -143,3 +158,28 @@ def update_event(data, game_id):
         # Flavor text from whatever event did and new event state
         final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
         return final_string
+
+def buy_item(item_id, shop_items, game):
+    # Return exit message if id is 0, or alert if item out of bounds
+    if item_id == 0:
+        return 'exit'
+    elif item_id >= len(shop_items):
+        return 'item id outside of bounds'
+
+    # Get what item player wants to buy
+    item_to_buy = shop_items[item_id]
+
+    # Get player balance
+    cursor.execute("SELECT balance FROM player WHERE id = %s", (game['player_turn'],))
+    balance = cursor.fetchone()[0]
+
+    if balance < item_to_buy['price']:
+        return 'Player does not have money to buy item'
+
+    # Remove the money
+    cursor.execute("UPDATE player SET balance = balance - %s WHERE id = %s", (item_to_buy['price'], game['player_turn']))
+
+    # Add the item
+    cursor.execute("INSERT INTO item VALUES (DEFAULT, %s, %s, %s)", (item_to_buy['name'], game['player_turn'], item_to_buy['rarity']))
+    print('bought item')
+    return 'successfully bought item'
