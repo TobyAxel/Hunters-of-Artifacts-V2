@@ -25,7 +25,7 @@
                     <div id="game-summary">
                         <div class="tile">
                             <span id="player-turn-info" class="font-bold">Players turn</span>
-                            <span id="moves-left-info" class="secondary-font-color">x moves left</span>
+                            <span id="moves-info" class="secondary-font-color">x moves left</span>
                         </div>
                         <div class="tile">
                             <span id="account-balance-info" class="font-bold">x&euro;</span>
@@ -71,6 +71,7 @@
     </main>
 
     <!-- Modals -->
+    <!-- Game select modal -->
     <dialog id="game-select-modal" class="modal tile">
         <div class="modal-inner">
             <div class="header">
@@ -89,6 +90,7 @@
         </div>
     </dialog>
 
+    <!-- Game create modal -->
     <dialog id="game-create-modal" class="modal tile">
         <form id="game-create-form" method="post">
             <div class="modal-inner">
@@ -128,10 +130,23 @@
                     <button type="button" class="primary-button" id="back-to-game-select">Back</button>
                     <!-- Adding autocomplete="off" will make the button always disabled on page refresh -->
                     <!-- Refer here: https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing -->
-                    <button class="primary-button" id="create-new">Create new</button>
+                    <button class="primary-button">Create new</button>
                 </div>
             </div>
         </form>
+    </dialog>
+
+    <!-- Transfer move to another player modal -->
+    <dialog id="move-switch-modal" class="modal tile">
+        <div class="modal-inner">
+            <div class="header">
+                <h1>Your turn, <span id="switch-modal-name"></span></h1>
+                <p>It is time for the next player to make their moves. Ready? Click &quot;Start Move&quot; below.</p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="primary-button" id="start-move">Start move</button>
+            </div>
+        </div>
     </dialog>
 
     <!-- Libraries, helpers and main script file -->
