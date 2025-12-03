@@ -15,9 +15,25 @@ const appState = {
     backendBaseUrl: "http://127.0.0.1:3000",
     gameId: null,
     gameList: [],
+    gameInfo: {
+        max_round: null,
+        current_round: null,
+    },
+    playerTurn: {
+        name: "Some Player",
+        money: 10000,
+        travelled: 0,
+        movesLeft: 2,
+    }
 };
 
 const elements = {
+    info: {
+        player: document.querySelector("#player-turn-info"),
+        moves: document.querySelector("#moves-info"),
+        accountBalance: document.querySelector("#account-balance-info"),
+        distanceTravelled: document.querySelector("#distance-travelled-info"),
+    },
     gameSelect: {
         dialog: document.querySelector("dialog#game-select-modal"),
         gameListContainer: document.querySelector("#game-list"),
@@ -31,6 +47,11 @@ const elements = {
         playerInputs: document.querySelector("#player-inputs"),
         addPlayerInputBtn: document.querySelector("#add-player-input"),
         backBtn: document.querySelector("#back-to-game-select"),
+    },
+    moveSwitch: {
+        dialog: document.querySelector("#move-switch-modal"),
+        name: document.querySelector("#switch-modal-name"),
+        startMoveBtn: document.querySelector("#start-move")
     }
 };
 
@@ -41,17 +62,24 @@ TODO:
  */
 
 async function main() {
-    // Show game select modal if no gameId
-    if(!appState.gameId) {
-        await showGameSelect();
-    }
+    // Initially insert elements
+    // Add two player inputs by default to the game create form
+    addPlayerInput();
+    addPlayerInput();
+
+    // See if game id exists in localStorage
+    const gameId = Number(window.localStorage.getItem("game_id"));
     
-    // Add two player inputs as default
-    addPlayerInput();
-    addPlayerInput();
+    // If doesnt exist, open modal for game selection/creation
+    if(!gameId) {
+        await showGameSelect();
+        return; // Abrupts this function's execution
+    }
+
+    await openGame(gameId);
 }
 
-function selectGame(e) {
+function selectGameInList(e) {
     const gameId = e.target.value;
     elements.gameSelect.continueGameBtn.removeAttribute("disabled");
     elements.gameSelect.gameSelected = gameId;
@@ -80,7 +108,7 @@ async function showGameSelect() {
         });
         const date = new Date(game.created_at);
         const displayDate = `${date.toLocaleDateString("fi-fi")} ${date.toLocaleTimeString("fi-fi", { hour: "2-digit", minute: "2-digit" })}`;
-        newButton.addEventListener("change", selectGame);
+        newButton.addEventListener("change", selectGameInList);
         newButton.append(buttonInput);
         newButton.innerHTML += `<h3>${game.name}</h3><span>${displayDate}</span>`;
         elements.gameSelect.gameListContainer.append(newButton);
@@ -95,15 +123,43 @@ TODO:
 - fetch game data and add it into state
  */
 
-function openGame(gameId) {
-    /* 
-        TODO:
-        - send a request to create a game on server
-        - set new game state
-    */
+async function openGame(gameId) {
     appState.gameId = Number(gameId);
     elements.gameSelect.dialog.close();
     elements.gameCreate.dialog.close();
+    window.localStorage.setItem("game_id", gameId);
+    
+    await switchMove(true);
+}
+
+async function switchMove(initial) {
+    // Only on game open
+    if(!initial) {
+        await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/end-turn`, { method: "POST" }).then(async (req) => {
+            const res = await req.json();
+            console.log(res);
+        });
+    }
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}`).then(async (req) => {
+        const res = await req.json();
+        // Save data to app state
+        appState.playerTurn.name = res[0].name;
+        appState.gameInfo.max_round = res[0].max_round;
+        appState.gameInfo.current_round = res[0].round;
+        appState.playerTurn.movesLeft = res[0].moves;
+    });
+
+    // Display data from app state in the elements
+    elements.info.player.innerHTML = appState.playerTurn.name;
+    elements.info.moves.innerHTML = `Move ${2-appState.playerTurn.movesLeft+1}&sol;2`;
+
+    // Show player turn modal
+    elements.moveSwitch.name.innerHTML = appState.playerTurn.name;
+    elements.moveSwitch.dialog.showModal();
+}
+
+function switchMoveConfirm() {
+    elements.moveSwitch.dialog.close();
 }
 
 // Event listener functions
@@ -219,5 +275,7 @@ elements.gameSelect.createNewBtn.addEventListener("click", switchToGameCreate);
 elements.gameCreate.addPlayerInputBtn.addEventListener("click", addPlayerInput);
 elements.gameCreate.backBtn.addEventListener("click", switchToGameSelect);
 elements.gameCreate.form.addEventListener("submit", gameCreateSubmit);
+elements.moveSwitch.startMoveBtn.addEventListener("click", switchMoveConfirm);
 
+// Main/entry function
 main();
