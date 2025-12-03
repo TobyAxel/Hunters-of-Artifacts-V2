@@ -1,4 +1,7 @@
+import math
 from flask import Flask, request, jsonify
+from sympy.polys.polyconfig import query
+import matplotlib.pyplot as plt
 from backend_functions import *
 app = Flask(__name__)
 
@@ -89,19 +92,19 @@ def create_game():
 
 #Placeholder for items code?
 @app.route('/player/int:player_id/items', method=['GET'])
-def GetItems(items):
-    items = items[0]
+def items(items1):
+    items1 = items1[0]
     try:
-        if items[0] == None:
-            print(items[-1])
+        if items1[0] == None:
+            print(items1[-1])
 
     except Exception as e:
-        if len(GetItems[0]) == 0:
+        if len(items1[0]) == 0:
             return jsonify({'message': 'No games found'}), 200
 
         return jsonify({'error': str(e)}), 500
 
-    return items[-1]
+    return items1[-1]
 
 
 @app.route('/player/int:player_id/active_effects', method=['GET'])
@@ -116,10 +119,21 @@ def active_effects(player_id, active_effect):
         "Player": player_id, "Effects": active_effect[0]
     }
     return player_active_effects
-@app.route('airports/int:distance/int[]:point')
-def point(x, y):
-    x = math.pi * 2 * x
-    return (x, y)
+@app.route('airports/int:distance/int[]:point', method=['GET'])
+def point(y):
+    x1 = math.pi * 2 * y
+    y = math.sqrt((x1**2) + (y**2))
+    ## Tyhmä testi arctan = math.atan2(y,x1)
+    point1 =  3.0 #kilometers? #or miles?
+    final_point = point1 + y
+    circle = plt.Circle((0, 0), point1, fill=False)  # Circle with center (0,0) and radius 5
+    fig, ax = plt.subplots()
+    ax.add_patch(circle)
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    plt.axis('equal')
+    plt.show()
+    return final_point
 
 
 

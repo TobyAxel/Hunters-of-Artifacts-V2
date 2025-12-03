@@ -1,7 +1,7 @@
 from sql_connection import cursor
 from decorator import append
 import random
-import math
+
 
 ## HELPER FUNCTIONS ##
 
@@ -97,3 +97,6 @@ def event(game_id, event_in_db, event_list, event_option):
         # Flavor text from whatever event did and new event state
         final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
         return final_string
+
+def getItems(player_id):
+    player_id =
