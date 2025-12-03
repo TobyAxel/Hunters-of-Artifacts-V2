@@ -11,7 +11,7 @@ def items(player_id):
     player_items = get_items(player_id)
     return player_items
 
-@app.route('/game')
+@app.route('/games/active_effec')
 
 
 
@@ -102,7 +102,11 @@ def create_game():
     return jsonify({'message': 'Game created', 'game_id': new_game_id}), 201
 
 
-# @app.route('/player/int:player_id/active_effects', method=['GET'])
+@app.route('/player/int:player_id/active_effects', methods=['GET'])
+def active_effects(active_effects):
+    pass
+
+
 # def active_effects(player_id, active_effect):
 #     active_effect = list
 #     player_id = get_player(player_id)
