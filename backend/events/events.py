@@ -1,4 +1,4 @@
-from backend.events.event_classes import *
+from backend.game_classes import *
 from backend.events.event_funcs import *
 import random
 
