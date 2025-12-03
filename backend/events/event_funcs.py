@@ -51,3 +51,13 @@ def buy_item(item, amount, game_id):
         return f"You bought {item.name} for {amount}€."
     else:
         return "You don't have enough money."
+
+#Function deducts an item and adds the money for it
+def sell_item(amount, game_id):
+    cursor.execute("SELECT * FROM item WHERE rarity = 'common' AND player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
+    item = cursor.fetchone
+    if item.len > 0:
+        cursor.execute("DELETE FROM item WHERE player_id = (SELECT player_turn FROM game WHERE id = %s) AND name = &s LIMIT 1", (game_id, item))
+        return add_money(amount, game_id)
+    else:
+        return "You have no items to sell."

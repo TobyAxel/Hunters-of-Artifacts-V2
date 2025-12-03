@@ -81,7 +81,7 @@ broken_atm_event = Event([
     ])
 ])
 
-Street_musician_event = Event([
+street_musician_event = Event([
     State("You see a street musician playing lively tunes. Tip them 200€?\n1. Yes\n2. No", [
         Choice(buy_item, [discount_voucher, 200], 2),
         Choice(None, None, 1),
