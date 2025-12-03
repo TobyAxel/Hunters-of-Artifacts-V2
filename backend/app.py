@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from backend_functions import *
 
 app = Flask(__name__)
+CORS(app)
 
 # Endpoint to fetch all games or create a new game
 @app.route('/games', methods=['GET', 'POST'])

@@ -98,6 +98,37 @@ button {
     background-color: var(--primary-hover-bg);
 }
 
+.inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 296px;
+}
+
+.input-wrap input {
+    padding: 8px;
+    border: solid 1px var(--secondary-font-color);
+    border-radius: 0;
+}
+
+.input-with-button-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.input-with-button-wrap input {
+    flex-basis: 100%;
+    min-width: 0;
+}
+
 /* Layout */
 
 #layout {
@@ -177,20 +208,27 @@ button {
 #game-list {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 #game-list button {
     width: 400px;
 }
 
-#game-select-modal {
+.modal-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
-    padding: 32px 12px;
+    gap: 12px;
+    padding: 12px;
 }
 
-#game-select-header {
+.modal-header {
     text-align: center;
+}
+
+.modal-buttons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
 }
