@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 from backend_functions import *
 app = Flask(__name__)
 
-
-
 #Placeholder for items code?
 @app.route('/player/items/<int:player_id>', methods=['GET'])
 def items(player_id):
     player_items = get_items(player_id)
     return player_items
+
+@app.route('/game')
 
 
 
@@ -130,7 +130,6 @@ def create_game():
 #     plt.show()
 #     return final_point
 #
-
 
 # Run backend
 if __name__ == '__main__':
