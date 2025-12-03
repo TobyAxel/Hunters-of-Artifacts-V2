@@ -98,5 +98,9 @@ def event(game_id, event_in_db, event_list, event_option):
         final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
         return final_string
 
-def getItems(player_id):
-    player_id =
+def get_items(player_id):
+    cursor.execute(f"SELECT * FROM item WHERE player_id = {player_id}")
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+    return results
+

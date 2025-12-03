@@ -5,6 +5,17 @@ import matplotlib.pyplot as plt
 from backend_functions import *
 app = Flask(__name__)
 
+
+
+#Placeholder for items code?
+@app.route('/player/items/<int:player_id>', methods=['GET'])
+def items(player_id):
+    player_items = get_items(player_id)
+    return player_items
+
+
+
+
 # Endpoint to fetch all games
 @app.route('/games', methods=['GET'])
 def fetch_games():
@@ -54,19 +65,19 @@ def fetch_game_players(game_id):
     return players
 
 # Endpoint to get player data
-@app.route('/player/<int:player_id>',method=['GET'])
-def fetch_player(player_id):
-    try:
-        player = get_player(player_id)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    # check if player exists
-    if len(player) == 0:
-        return jsonify({'message': f'No player with id {player_id} found'}), 404
-
-    # return player if found
-    return jsonify(player), 200
+# @app.route('/player/<int:player_id>',method=['GET'])
+# def fetch_player(player_id):
+#     try:
+#         player = get_player(player_id)
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+#
+#     # check if player exists
+#     if len(player) == 0:
+#         return jsonify({'message': f'No player with id {player_id} found'}), 404
+#
+#     # return player if found
+#     return jsonify(player), 200
 
 
 # Endpoint to create a new game
@@ -90,51 +101,35 @@ def create_game():
     # return success message
     return jsonify({'message': 'Game created', 'game_id': new_game_id}), 201
 
-#Placeholder for items code?
-@app.route('/player/int:player_id/items', method=['GET'])
-def items(items1):
-    items1 = items1[0]
-    try:
-        if items1[0] == None:
-            print(items1[-1])
 
-    except Exception as e:
-        if len(items1[0]) == 0:
-            return jsonify({'message': 'No games found'}), 200
-
-        return jsonify({'error': str(e)}), 500
-
-    return items1[-1]
-
-
-@app.route('/player/int:player_id/active_effects', method=['GET'])
-def active_effects(player_id, active_effect):
-    active_effect = list
-    player_id = get_player(player_id)
-    for player in player_id:
-        player_id.append(player_id[player])
-        player += 1
-        return player_id
-    player_active_effects = {
-        "Player": player_id, "Effects": active_effect[0]
-    }
-    return player_active_effects
-@app.route('airports/int:distance/int[]:point', method=['GET'])
-def point(y):
-    x1 = math.pi * 2 * y
-    y = math.sqrt((x1**2) + (y**2))
-    ## Tyhmä testi arctan = math.atan2(y,x1)
-    point1 =  3.0 #kilometers? #or miles?
-    final_point = point1 + y
-    circle = plt.Circle((0, 0), point1, fill=False)  # Circle with center (0,0) and radius 5
-    fig, ax = plt.subplots()
-    ax.add_patch(circle)
-    ax.set_xlim(-10, 10)
-    ax.set_ylim(-10, 10)
-    plt.axis('equal')
-    plt.show()
-    return final_point
-
+# @app.route('/player/int:player_id/active_effects', method=['GET'])
+# def active_effects(player_id, active_effect):
+#     active_effect = list
+#     player_id = get_player(player_id)
+#     for player in player_id:
+#         player_id.append(player_id[player])
+#         player += 1
+#         return player_id
+#     player_active_effects = {
+#         "Player": player_id, "Effects": active_effect[0]
+#     }
+#     return player_active_effects
+# @app.route('airports/int:distance/int[]:point', method=['GET'])
+# def point(y):
+#     x1 = math.pi * 2 * y
+#     y = math.sqrt((x1**2) + (y**2))
+#     ## Tyhmä testi arctan = math.atan2(y,x1)
+#     point1 =  3.0 #kilometers? #or miles?
+#     final_point = point1 + y
+#     circle = plt.Circle((0, 0), point1, fill=False)  # Circle with center (0,0) and radius 5
+#     fig, ax = plt.subplots()
+#     ax.add_patch(circle)
+#     ax.set_xlim(-10, 10)
+#     ax.set_ylim(-10, 10)
+#     plt.axis('equal')
+#     plt.show()
+#     return final_point
+#
 
 
 # Run backend
