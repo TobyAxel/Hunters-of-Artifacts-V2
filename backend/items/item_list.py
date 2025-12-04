@@ -1,5 +1,5 @@
-from game_classes import *
-from items.item_functions import *
+from backend.game_classes import *
+from backend.items.item_functions import *
 
 hidden_terminal_pass = Item(
       'Hidden Terminal Pass',
