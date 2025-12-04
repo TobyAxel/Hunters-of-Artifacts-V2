@@ -21,7 +21,7 @@ hidden_terminal_pass_event = Event([
         Choice("Yes", add_item, [hidden_terminal_pass], 2),
         Choice("No", None, None, 1)
     ]),
-    State("You chose not to hack the terminal.\nPress enter to continue...", [
+    State("You chose not to hack the terminal.", [
         Choice("Continue", None, None, "final"),
     ]),
     State("Press enter to continue...", [
@@ -34,7 +34,7 @@ cash_on_floor_event = Event([
         Choice("Yes", add_item_money, [discount_voucher, 50, 300], 2),
         Choice("No", None, None, 1),
     ]),
-    State("You ignored the cash and walked away.\nPress enter to continue...", [
+    State("You ignored the cash and walked away.", [
         Choice("Continue", None, None, "final"),
     ]),
     State("Press enter to continue...", [
@@ -82,7 +82,7 @@ broken_atm_event = Event([
 ])
 
 street_musician_event = Event([
-    State("You see a street musician playing lively tunes. Tip them 200€?", [
+    State("You see a street musician playing lively tunes. They're selling discount vouchers for 200€. Do you want to buy one?", [
         Choice("Yes", buy_item, [discount_voucher, 200], 2),
         Choice("No", None, None, 1),
     ]),
