@@ -191,16 +191,14 @@ button {
 }
 
 #explore {
-    background-image: url('../images/explore-background.jpg');
+    background-image: url('../images/explore-background.webp');
     background-size: cover;
+
+    align-items: center;
+    justify-content: center;
 }
 
 .explore-button {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    
     padding: 16px 32px;
     background-color: rgb(0, 0, 128);
     color: white;
@@ -209,6 +207,38 @@ button {
 }
 
 .explore-button:hover {
+    background-color: rgb(0, 0, 180);
+}
+
+.event-container {
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 600px;
+    text-align: center;
+}
+
+.event-text {
+    font-size: 20px;
+}
+
+.event-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.event-button {
+    padding: 12px 24px;
+    background-color: rgb(0, 0, 128);
+    color: white;
+    font-size: 18px;
+    border-radius: 8px;
+}
+
+.event-button:hover {
     background-color: rgb(0, 0, 180);
 }
 
