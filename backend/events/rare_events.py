@@ -11,7 +11,7 @@ gambler_table_event = Event([
     State("You walk away from the shady table.", [
         Choice(None, None, "final"),
     ]),
-    State("Press enter to continue", [
+    State("Press enter to continue...", [
         Choice(None, None, "final"),
     ])
 ])
@@ -24,7 +24,7 @@ lost_ticket_event = Event([
     State("You leave it. Maybe someone else will find it.", [
         Choice(None, None, "final"),
     ]),
-    State("Press enter to continue", [
+    State("Press enter to continue...", [
         Choice(None, None, "final"),
     ])
 ])
@@ -37,7 +37,7 @@ strange_collector_event = Event([
     State("You decline the collector's offer", [
         Choice(None, None, "final"),
     ]),
-    State("Press enter to continue", [
+    State("Press enter to continue...", [
         Choice(None, None, "final"),
     ])
 ])
@@ -50,7 +50,7 @@ abandoned_luggage_event = Event([
     State("You decided to leave it be.", [
         Choice(None, None, "final"),
     ]),
-    State("Press enter to continue", [
+    State("Press enter to continue...", [
         Choice(None, None, "final"),
     ])
 ])
