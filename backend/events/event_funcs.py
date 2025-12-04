@@ -1,5 +1,5 @@
 from backend.sql_connection import *
-from backend.items.items import *
+from backend.items.item_list import *
 import random
 
 #Function adds or deducts money

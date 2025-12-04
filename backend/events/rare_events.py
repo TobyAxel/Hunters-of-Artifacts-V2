@@ -1,6 +1,6 @@
 from backend.game_classes import *
 from backend.events.event_funcs import *
-from backend.items.items import *
+from backend.items.item_list import *
 import random
 
 gambler_table_event = Event([
