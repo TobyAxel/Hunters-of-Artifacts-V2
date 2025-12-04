@@ -22,22 +22,29 @@
         <div id="tiles-left">
             <div id="actions-and-map">
                 <div id="actions">
-                    <div id="game-summary">
-                        <div class="tile">
-                            <span id="player-turn-info" class="font-bold">Players turn</span>
-                            <span id="moves-info" class="secondary-font-color">x moves left</span>
+                    <div>
+                        <div id="current-round" class="tile">
+                            <h3>Current round: <span id="current-round-number"></span></h3>
                         </div>
-                        <div class="tile">
-                            <span id="account-balance-info" class="font-bold">x&euro;</span>
-                            <span id="distance-travelled-info" class="secondary-font-color">x km travelled</span>
+                        <div id="player-info">
+                            <div class="tile">
+                                <span id="player-turn-info" class="font-bold">Players turn</span>
+                                <span id="moves-info" class="secondary-font-color">x moves left</span>
+                            </div>
+                            <div class="tile">
+                                <span id="account-balance-info" class="font-bold">x&euro;</span>
+                                <span id="distance-travelled-info" class="secondary-font-color">x km travelled</span>
+                            </div>
                         </div>
+
                     </div>
                     <div id="actions-list" class="tile">
-                        <button class="primary-button">1. Explore</button>
-                        <button class="primary-button">2. Travel</button>
-                        <button class="primary-button">3. Items</button>
-                        <button class="primary-button">4. Shop</button>
-                        <button class="primary-button">5. Quit</button>
+                        <button class="primary-button" id="explore-action">1. Explore</button>
+                        <button class="primary-button" id="travel-action">2. Travel</button>
+                        <button class="primary-button" id="item-action">3. Items</button>
+                        <button class="primary-button" id="shop-action">4. Shop</button>
+                        <button class="primary-button" id="end-turn-action">5. End Turn</button>
+                        <button class="primary-button" id="quit-action">6. Quit</button>
                     </div>
                 </div>
                 <div id="map">
@@ -61,12 +68,7 @@
 
                 </div>
             </div>
-            <div id="current-round" class="tile">
-                <h3>Current round</h3>
-                <div id="current-round-list">
 
-                </div>
-            </div>
         </div>
     </main>
 

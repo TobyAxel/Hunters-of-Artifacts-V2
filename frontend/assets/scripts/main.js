@@ -33,6 +33,8 @@ const elements = {
         moves: document.querySelector("#moves-info"),
         accountBalance: document.querySelector("#account-balance-info"),
         distanceTravelled: document.querySelector("#distance-travelled-info"),
+        currentRoundNumber: document.querySelector("#current-round-number"),
+        currentRoundList: document.querySelector("#current-round-list")
     },
     gameSelect: {
         dialog: document.querySelector("dialog#game-select-modal"),
@@ -52,6 +54,16 @@ const elements = {
         dialog: document.querySelector("#move-switch-modal"),
         name: document.querySelector("#switch-modal-name"),
         startMoveBtn: document.querySelector("#start-move")
+    },
+    shop: {
+        dialog: document.querySelector("#shop-modal"),
+        shopItems: document.querySelector("#shop-items")
+    },
+    actionButtons: {
+        exploreBtn: document.querySelector("#explore-action"),
+        shopBtn: document.querySelector("#shop-action"),
+        endturnBtn: document.querySelector("#end-turn-action"),
+        quitBtn: document.querySelector("#quit-action"),
     }
 };
 
@@ -70,7 +82,7 @@ async function main() {
     // See if game id exists in localStorage
     const gameId = Number(window.localStorage.getItem("game_id"));
     
-    // If doesnt exist, open modal for game selection/creation
+    // If game doesn't exist, open modal for game selection/creation
     if(!gameId) {
         await showGameSelect();
         return; // Abrupts this function's execution
@@ -143,15 +155,22 @@ async function switchMove(initial) {
     await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}`).then(async (req) => {
         const res = await req.json();
         // Save data to app state
-        appState.playerTurn.name = res[0].name;
+        appState.playerTurn.name = res[0].player_turn;
         appState.gameInfo.max_round = res[0].max_round;
         appState.gameInfo.current_round = res[0].round;
         appState.playerTurn.movesLeft = res[0].moves;
     });
-
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/players`).then(async (req) => {
+        const res = await req.json();
+        // Save data to app state
+        for (let i = 0; i < res.length; i++) {
+            res[i].screen_name
+        }
+    });
     // Display data from app state in the elements
     elements.info.player.innerHTML = appState.playerTurn.name;
-    elements.info.moves.innerHTML = `Move ${2-appState.playerTurn.movesLeft+1}&sol;2`;
+    elements.info.moves.innerHTML = `${appState.playerTurn.movesLeft} moves left`;
+    elements.info.currentRoundNumber.innerHTML = `${appState.gameInfo.current_round}/${appState.gameInfo.max_round}`
 
     // Show player turn modal
     elements.moveSwitch.name.innerHTML = appState.playerTurn.name;
@@ -269,6 +288,11 @@ async function gameCreateSubmit(e) {
     });
 }
 
+async function exitGame() {
+    window.localStorage.setItem("game_id", false);
+    await showGameSelect();
+}
+
 // Event listeners
 elements.gameSelect.continueGameBtn.addEventListener("click", () => openGame(elements.gameSelect.gameSelected));
 elements.gameSelect.createNewBtn.addEventListener("click", switchToGameCreate);
@@ -276,6 +300,8 @@ elements.gameCreate.addPlayerInputBtn.addEventListener("click", addPlayerInput);
 elements.gameCreate.backBtn.addEventListener("click", switchToGameSelect);
 elements.gameCreate.form.addEventListener("submit", gameCreateSubmit);
 elements.moveSwitch.startMoveBtn.addEventListener("click", switchMoveConfirm);
+elements.actionButtons.endturnBtn.addEventListener("click", () => {switchMove(false)});
+elements.actionButtons.quitBtn.addEventListener("click", exitGame)
 
 // Main/entry function
 main();

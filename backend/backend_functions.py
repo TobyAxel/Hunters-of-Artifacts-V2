@@ -177,7 +177,7 @@ def buy_item(item_id, shop_items, game):
     balance = cursor.fetchone()[0]
 
     if balance < item_to_buy['price']:
-        return 'Player does not have money to buy item'
+        return 'You do not have enough money to buy this item'
 
     # Remove the money
     cursor.execute("UPDATE player SET balance = balance - %s WHERE id = %s", (item_to_buy['price'], game['player_turn']))
