@@ -1,7 +1,4 @@
-import math
 from flask import Flask, request, jsonify
-from sympy.polys.polyconfig import query
-import matplotlib.pyplot as plt
 from flask_cors import CORS
 from backend_functions import *
 app = Flask(__name__)
@@ -188,16 +185,14 @@ def player_active_effects(player_id):
         return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
 
-@app.route('player/int:game_id/travel')
-def player_travel(game_id):
+@app.route('player/int:player_id/travel')
+def player_travel(player_id):
     try:
-        if travel(1, "EFHK")
+        result = travel(0, "")
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    return jsonif
 
-
-
+    return jsonify({"result": result}),200
 # Run backend
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=3000)

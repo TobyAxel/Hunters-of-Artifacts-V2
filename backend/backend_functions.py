@@ -3,8 +3,6 @@ from events.events import *
 from events.event_funcs import *
 from items.item_list import *
 import random
-from decorator import append
-import random
 
 
 #---- HELPER FUNCTIONS ----#
