@@ -108,3 +108,28 @@ def suspicious_individual_event_func(item, chance1, chance2, game_id):
         return add_money(-500, game_id)
     else:
         return add_item(item, game_id)
+
+def add_artifact(chance, chance2, amount, amount2, game_id):
+    roll = random.randint(1, 100)
+    if roll <= chance:
+        return add_money(amount, game_id)
+    elif roll <= chance2:
+        artifacts = []
+        for Item.name, Item.rarity in item_list:
+            if Item.rarity == 'artifact':
+                artifacts.append(Item.name)
+        # Remove owned artifacts from artifact pool
+        cursor.execute(
+            "SELECT * FROM item WHERE rarity = 'artifact' WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)",
+            (game_id,))
+        owned_artifacts = cursor.fetchall()
+        for artifact in artifacts[:]:
+            if artifact in owned_artifacts:
+                artifacts.remove(artifact)
+        if len(artifacts) == 0:
+            return add_money(amount2, game_id)
+        else:
+            artifact = random.choice(artifacts)
+            return add_item(artifact, game_id)
+    else:
+        return "You gain nothing"

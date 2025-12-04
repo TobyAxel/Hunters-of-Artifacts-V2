@@ -1,6 +1,7 @@
 from backend.events.common_events import *
 from backend.events.rare_events import *
 from backend.events.epic_events import *
+from backend.events.legendary_events import *
 import random
 
 event_list = [
@@ -20,4 +21,9 @@ event_list = [
     terminal_of_faces_event,
     forgotten_locker_event,
     suspicious_individual_event,
+    ancient_vault_event,
+    locked_briefcase_event,
+    data_vault_event,
+    abandoned_space_pod_event,
+    time_capsule_event
     ]
