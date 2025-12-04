@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from backend_functions import *
-
 app = Flask(__name__)
 CORS(app)
 
@@ -15,14 +14,14 @@ def handle_games():
             games = get_games()
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-        
+
         # check if existing games are found
         if len(games) == 0:
             return jsonify({'message': 'No games found'}), 200
 
         # return games if any are found
         return jsonify(games), 200
-    
+
     # handle POST request to create a new game
     if request.method == 'POST':
         # check if request is json
@@ -42,7 +41,7 @@ def handle_games():
 
         # return success message
         return jsonify({'message': 'Game created', 'games': new_game_id}), 201
-    
+
     return jsonify({'error': 'Invalid request method'}), 405
 
 # Endpoint to fetch a specific game by id
@@ -191,8 +190,24 @@ def end_player_turn(game_id):
         result = end_turn(game_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
+
     # return new game state
+    return jsonify(result), 200
+
+@app.route('/player/items/<int:player_id>', methods=['GET'])
+def player_items(player_id):
+    try:
+        result = get_items(player_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify(result), 200
+
+@app.route('/player/active-effects/<int:player_id>', methods=['GET'])
+def player_active_effects(player_id):
+    try:
+        result = get_active_effects(player_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
 
 # Run backend
