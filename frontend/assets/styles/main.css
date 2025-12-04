@@ -190,6 +190,28 @@ button {
     flex-grow: 1;
 }
 
+#explore {
+    background-image: url('../images/explore-background.jpg');
+    background-size: cover;
+}
+
+.explore-button {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    
+    padding: 16px 32px;
+    background-color: rgb(0, 0, 128);
+    color: white;
+    font-size: 24px;
+    border-radius: 8px;
+}
+
+.explore-button:hover {
+    background-color: rgb(0, 0, 180);
+}
+
 #shop {
     background-image: url("../images/shop-background.webp");
     background-repeat: repeat;
@@ -198,8 +220,8 @@ button {
 #shop-items {
     position: absolute;
     
-    left: 10%;
-    top: 25%;
+    left: 17%;
+    top: 34%;
 
     display: flex;
     flex-direction: column;
@@ -209,30 +231,33 @@ button {
 .shelf {
     display: flex;
     flex-direction: row;
-    gap: 20px;
 
     background-image: url("../images/shelf.png");
-    background-size: cover;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-y: bottom;
 
-    padding: 0 50px;
-    width: 525px;
-    height: 120px;
+    padding: 0 20px;
+
+    height: 90px;
+    width: 400px;
 }
 
 .shop-item {
     position: relative;
     display: flex;
-    height: 100px;
-    width: 100px;
+    
+    height: 90px;
+    width: 90px;
 
     cursor: pointer;
 }
 
 .shop-item img {
     position: absolute;
-    height: 100%;
+    height: 70%;
 
-    bottom: 0;
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -285,6 +310,10 @@ button {
 #current-round {
     flex-grow: 1;
     padding: 12px;
+}
+
+#console {
+    height: 20%;
 }
 
 #game-list {
