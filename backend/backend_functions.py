@@ -1,4 +1,3 @@
-from sql_connection import cursor
 from events.events import *
 from events.event_funcs import *
 from items.item_list import *
@@ -163,25 +162,6 @@ def update_event(data, game_id):
     if event_in_db[0]['event_id'] is None:
         return "No event is active."
 
-    # Get current event, current event state, event choice
-    current_event = event_list[event_in_db[0]['event_id']]
-    event_state = current_event.states[event_in_db[0]['event_state']]
-    event_choice = event_state.choices[event_option]
-
-    # Perform choice function if function is given and update new state to db
-    flavor = ""
-    if event_choice.function is not None:
-        flavor = event_choice.perform_func(game_id)
-    if event_choice.next_state == "final":
-        cursor.execute("UPDATE game SET event_id = NULL, event_state = NULL WHERE id = %s", (game_id,))
-        return ""
-    else:
-        cursor.execute("UPDATE game SET event_state = %s WHERE id = %s", (event_choice.next_state, game_id))
-        # Flavor text from whatever event did and new event state
-        final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
-        return final_string
-
-def event(game_id, event_in_db, event_list, event_option):
     # Get current event, current event state, event choice
     current_event = event_list[event_in_db[0]['event_id']]
     event_state = current_event.states[event_in_db[0]['event_state']]
