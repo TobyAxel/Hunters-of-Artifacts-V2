@@ -1,9 +1,9 @@
-from sql_connection import cursor
 from events.events import *
 from events.event_funcs import *
 from items.item_list import *
 from items.item_functions import *
 import random
+
 
 #---- HELPER FUNCTIONS ----#
 
@@ -31,6 +31,12 @@ def get_players(game_id):
     results = _rows_to_dicts(rows)
     return results
 
+def get_player(player_id):
+    cursor.execute("SELECT * FROM player WHERE id = %s", (player_id,))
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+    return results
+
 def get_event(game_id):
     cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
     rows = cursor.fetchall()
@@ -43,10 +49,23 @@ def get_event(game_id):
     # Display existing event's state
     event = event_list[results[0]['event_id']]
     choices = {}
-    for choice in event.states[0].choices:
+
+    for choice in event.states[results[0]['event_state']].choices:
         choices[len(choices) + 1] = choice.text
 
     return {"text": event.states[results[0]['event_state']].text, "choices": choices}
+
+def get_items(player_id):
+    cursor.execute("SELECT * FROM item WHERE player_id = %s", [player_id,])
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+    return results
+
+def get_active_effects(player_id):
+    cursor.execute("SELECT * FROM active_effect WHERE player_id = %s", [player_id,])
+    rows = cursor.fetchall()
+    results = _rows_to_dicts(rows)
+    return results
 
 def get_shop_items(game):
     # Check what state shop is in
