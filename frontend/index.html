@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin="">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet">
     <link href="./assets/styles/main.css" rel="stylesheet">
 </head>
 <body>
@@ -70,17 +72,66 @@
 
     <!-- Modals -->
     <dialog id="game-select-modal" class="modal tile">
-        <div id="game-select-header">
-            <h1>Hunters of Artifacts V2</h1>
-            <p>Please select a game or start a new one:</p>
+        <div class="modal-inner">
+            <div class="header">
+                <h1>Hunters of Artifacts V2</h1>
+                <p>Please select a game or start a new one:</p>
+            </div>
+            <div id="game-list">
+    
+            </div>
+            <div class="modal-buttons">
+                <!-- Adding autocomplete="off" will make the button always disabled on page refresh -->
+                <!-- Refer here: https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing -->
+                <button class="primary-button" id="continue-game" disabled autocomplete="off">Continue game</button>
+                <button class="primary-button" id="create-new">Create new</button>
+            </div>
         </div>
-        <div id="game-list">
+    </dialog>
 
-        </div>
-        <div>
-            <button class="primary-button" id="continue-game" disabled>Continue game</button>
-            <button class="primary-button" id="create-new">Create new</button>
-        </div>
+    <dialog id="game-create-modal" class="modal tile">
+        <form id="game-create-form" method="post">
+            <div class="modal-inner">
+                <div class="header">
+                    <h1>New game</h1>
+                </div>
+                <div class="inputs">
+                    <div class="input-wrap">
+                        <label for="game-name">Game name:</label>
+                        <input type="text" name="name" placeholder="Fun game with friends" id="game-name" required />
+                    </div>
+                    <div class="input-wrap">
+                        <label for="max-round">Max round:</label>
+                        <input type="number" name="max_round" id="max-round" placeholder="20" value="20" required />
+                    </div>
+                    <div class="input-wrap">
+                        <label for="modifier">Modifier:</label>
+                        <input type="number" name="modifier" id="modifier" min="1" placeholder="1" value="1" required />
+                    </div>
+                    <div class="input-wrap">
+                        <label for="starting-distance">Starting distance:</label>
+                        <input type="number" name="starting_distance" id="starting-distance" placeholder="1" value="1" required />
+                    </div>
+                    <div class="input-wrap">
+                        <label for="starting-balance">Starting balance:</label>
+                        <input type="number" name="starting_balance" id="starting-balance" placeholder="10000" value="10000" required />
+                    </div>
+                    <div class="input-wrap">
+                        <label for="starting-location">Starting location (ICAO):</label>
+                        <input type="text" name="starting_location" id="starting-location" placeholder="EFHK" required />
+                    </div>
+                    <div id="player-inputs" class="inputs">
+                    </div>
+                    <button type="button" class="primary-button" id="add-player-input">Add another player</button>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="primary-button" id="back-to-game-select">Back</button>
+                    <!-- Adding autocomplete="off" will make the button always disabled on page refresh -->
+                    <!-- Refer here: https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing -->
+                    <button class="primary-button" id="create-new">Create new</button>
+                </div>
+            </div>
+        </form>
     </dialog>
 
     <!-- Libraries, helpers and main script file -->
