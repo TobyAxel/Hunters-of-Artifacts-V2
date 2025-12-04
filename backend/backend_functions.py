@@ -2,6 +2,7 @@ from sql_connection import cursor
 from events.events import *
 from events.event_funcs import *
 from items.item_list import *
+from items.item_functions import *
 import random
 
 #---- HELPER FUNCTIONS ----#
@@ -130,6 +131,36 @@ def end_turn(game_id):
     game = get_games(game_id)
 
     return game
+
+def use_player_item(item_name, game_id):
+    # Get current player's turn
+    cursor.execute("SELECT player_turn FROM game WHERE id = %s", (game_id,))
+    current_player = cursor.fetchone()[0]
+
+    # Check if player has item
+    cursor.execute("SELECT * FROM item WHERE player_id = %s AND name = %s LIMIT 1", (current_player, item_name))
+    item_id = cursor.fetchone()
+    
+    if item_id is None:
+        return 'Player does not have item.'
+
+    # Use item
+    for item in item_list:
+        if item.name == item_name:
+            # Check if item is usable
+            if item.usable is False:
+                return 'Item is not usable.'
+            
+            # Remove item
+            cursor.execute("DELETE FROM item WHERE id = %s", (item_id[0],))
+
+            # Add item to active effects
+            cursor.execute("INSERT INTO active_effect (effect_name, player_id, duration) VALUES (%s, %s, %s)", (item.name, current_player, item.duration))
+
+            result = item.perform_func(game_id)
+            break
+    
+    return result
 
 def update_event(data, game_id):
     # Get option
