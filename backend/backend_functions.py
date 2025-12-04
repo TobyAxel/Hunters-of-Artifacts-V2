@@ -60,7 +60,6 @@ def get_event(game_id):
         event = event_list[results[0]['event_id']]
         return event.states[results[0]['event_state']].text
 
-
 def get_items(player_id):
     cursor.execute("SELECT * FROM item WHERE player_id = %s", [player_id,])
     rows = cursor.fetchall()
@@ -72,7 +71,7 @@ def get_active_effects(player_id):
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
     return results
-  
+
 def get_shop_items(game):
     # Check what state shop is in
     (max_round, current_round) = (game['max_round'], game['round'])
@@ -184,7 +183,6 @@ def update_event(data, game_id):
         final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
         return final_string
 
-
 def event(game_id, event_in_db, event_list, event_option):
     # Get current event, current event state, event choice
     current_event = event_list[event_in_db[0]['event_id']]
@@ -203,7 +201,7 @@ def event(game_id, event_in_db, event_list, event_option):
         # Flavor text from whatever event did and new event state
         final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
         return final_string
-      
+
 def buy_item(item_id, shop_items, game):
     # Return exit message if id is 0, or alert if item out of bounds
     if item_id == 0:
@@ -228,3 +226,22 @@ def buy_item(item_id, shop_items, game):
     cursor.execute("INSERT INTO item VALUES (DEFAULT, %s, %s, %s)", (item_to_buy['name'], game['player_turn'], item_to_buy['rarity']))
     print('bought item')
     return 'successfully bought item'
+
+#Gives new location based on player input, if input equals player's new location done by me built by me
+def travel(player_id, location):
+    player_id = cursor.execute(f"SELECT {player_id} FROM player WHERE player == NULL), %s OR player_id = %s", (player_id, player_id))
+    #new_location = cursor.execute(input("Where do you want to move?")) in example
+    player_input = ""
+    new_locations = [""]
+    if player_input != "":
+        for player_input in new_locations:
+            if player_input == new_locations[0]:
+                new_locations[0] = cursor.execute(f"SELECT player FROM game WHERE player_id = {player_id}, %s (player_id) AND id in game != NULL where player_id = player_id, %s"), (player_id, player_id)
+                cursor.fetchall()
+                player_input += 1
+                if player_input == -1 or player_input != "":
+                    break
+    move_player = new_locations[0] + (cursor.execute(f"SELECT location FROM country WHERE location = {location}, AND player = {player_id} %s (player_id) AND id in game != NULL where player_id = player_id, %s"), (location, location, player_id, player_id))
+    rows = cursor.fetchall()
+    _rows_to_dicts(rows)
+    return move_player

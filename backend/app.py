@@ -188,6 +188,16 @@ def player_active_effects(player_id):
         return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
 
+@app.route('player/int:game_id/travel')
+def player_travel(game_id):
+    try:
+        if travel(1, "EFHK")
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonif
+
+
+
 # Run backend
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=3000)
