@@ -1,5 +1,5 @@
-from backend.game_classes import *
-from backend.events.event_funcs import *
+from game_classes import *
+from events.event_funcs import *
 import random
 
 gambler_event = Event([

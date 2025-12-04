@@ -52,8 +52,10 @@
 
 ## NOTE
 - Haven't updated dump yet, run this in mariadb
-- ALTER TABLE game ADD archived bool;
-- ALTER TABLE game ADD name varchar(255) NOT NULL;
-- ALTER TABLE game ADD created_at DATETIME NOT NULL DEFAULT NOW();
-- alter table game add column event_id int;
-- alter table game add column event_state int;
+```
+ALTER TABLE game ADD archived bool;
+ALTER TABLE game ADD name varchar(255) NOT NULL;
+ALTER TABLE game ADD created_at DATETIME NOT NULL DEFAULT NOW();
+alter table game add column event_id int;
+alter table game add column event_state int;
+```
