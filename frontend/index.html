@@ -22,30 +22,52 @@
         <div id="tiles-left">
             <div id="actions-and-map">
                 <div id="actions">
-                    <div id="game-summary">
-                        <div class="tile">
-                            <span id="player-turn-info" class="font-bold">Players turn</span>
-                            <span id="moves-left-info" class="secondary-font-color">x moves left</span>
+                    <div>
+                        <div id="current-round" class="tile">
+                            <h3>Current round: <span id="current-round-number"></span></h3>
                         </div>
-                        <div class="tile">
-                            <span id="account-balance-info" class="font-bold">x&euro;</span>
-                            <span id="distance-travelled-info" class="secondary-font-color">x km travelled</span>
+                        <div id="player-info">
+                            <div class="tile">
+                                <span id="player-turn-info" class="font-bold">Players turn</span>
+                                <span id="moves-info" class="secondary-font-color">x moves left</span>
+                            </div>
+                            <div class="tile">
+                                <span id="account-balance-info" class="font-bold">x&euro;</span>
+                                <span id="distance-travelled-info" class="secondary-font-color">x km travelled</span>
+                            </div>
                         </div>
+
                     </div>
                     <div id="actions-list" class="tile">
-                        <button class="primary-button">1. Explore</button>
-                        <button class="primary-button">2. Travel</button>
-                        <button class="primary-button">3. Items</button>
-                        <button class="primary-button">4. Shop</button>
-                        <button class="primary-button">5. Quit</button>
+                        <button class="primary-button" id="explore-action">1. Explore</button>
+                        <button class="primary-button" id="travel-action">2. Travel</button>
+                        <button class="primary-button" id="item-action">3. Items</button>
+                        <button class="primary-button" id="shop-action">4. Shop</button>
+                        <button class="primary-button" id="end-turn-action">5. End Turn</button>
+                        <button class="primary-button" id="quit-action">6. Quit</button>
                     </div>
                 </div>
-                <div id="map">
-    
+                <div id="main-screen" class="tile"> 
+                    <div id="explore">
+                        <h1>Explore</h1>
+                    </div>
+                    <div id="map">
+                    </div>
+                    <div id="items">
+                        <h1>Items</h1>
+                    </div>
+                    <div id="shop">
+                        <div id="shop-items">
+                            <div id="common-shelf" class="shelf"></div>
+                            <div id="rare-shelf" class="shelf"></div>
+                            <div id="epic-shelf" class="shelf"></div>
+                            <div id="legendary-shelf" class="shelf"></div>
+                        </div>
+
+                        <img src="assets/images/shop-sign.png" alt="shop sign" id="shop-sign">
+                        <img src="assets/images/shopkeeper.png" alt="shopkeeper" id="shopkeeper">
+                    </div>
                 </div>
-            </div>
-            <div id="console" class="tile">
-                Tee jotain
             </div>
         </div>
         <div id="tiles-right">
@@ -61,16 +83,12 @@
 
                 </div>
             </div>
-            <div id="current-round" class="tile">
-                <h3>Current round</h3>
-                <div id="current-round-list">
 
-                </div>
-            </div>
         </div>
     </main>
 
     <!-- Modals -->
+    <!-- Game select modal -->
     <dialog id="game-select-modal" class="modal tile">
         <div class="modal-inner">
             <div class="header">
@@ -89,6 +107,7 @@
         </div>
     </dialog>
 
+    <!-- Game create modal -->
     <dialog id="game-create-modal" class="modal tile">
         <form id="game-create-form" method="post">
             <div class="modal-inner">
@@ -110,11 +129,11 @@
                     </div>
                     <div class="input-wrap">
                         <label for="starting-distance">Starting distance:</label>
-                        <input type="number" name="starting_distance" id="starting-distance" placeholder="1" value="1" required />
+                        <input type="number" name="starting_distance" id="starting-distance" placeholder="0" value="0" required />
                     </div>
                     <div class="input-wrap">
                         <label for="starting-balance">Starting balance:</label>
-                        <input type="number" name="starting_balance" id="starting-balance" placeholder="10000" value="10000" required />
+                        <input type="number" name="starting_balance" id="starting-balance" placeholder="500" value="500" required />
                     </div>
                     <div class="input-wrap">
                         <label for="starting-location">Starting location (ICAO):</label>
@@ -128,10 +147,23 @@
                     <button type="button" class="primary-button" id="back-to-game-select">Back</button>
                     <!-- Adding autocomplete="off" will make the button always disabled on page refresh -->
                     <!-- Refer here: https://stackoverflow.com/questions/5985839/bug-with-firefox-disabled-attribute-of-input-not-resetting-when-refreshing -->
-                    <button class="primary-button" id="create-new">Create new</button>
+                    <button class="primary-button">Create new</button>
                 </div>
             </div>
         </form>
+    </dialog>
+
+    <!-- Transfer move to another player modal -->
+    <dialog id="move-switch-modal" class="modal tile">
+        <div class="modal-inner">
+            <div class="header">
+                <h1>Your turn, <span id="switch-modal-name"></span></h1>
+                <p>It is time for the next player to make their moves. Ready? Click &quot;Start Move&quot; below.</p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="primary-button" id="start-move">Start move</button>
+            </div>
+        </div>
     </dialog>
 
     <!-- Libraries, helpers and main script file -->

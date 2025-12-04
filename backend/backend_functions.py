@@ -1,5 +1,8 @@
 from sql_connection import cursor
 from events.events import *
+from events.event_funcs import *
+from items.item_list import *
+from items.item_functions import *
 import random
 
 #---- HELPER FUNCTIONS ----#
@@ -49,8 +52,36 @@ def get_event(game_id):
         event = event_list[results[0]['event_id']]
         return event.states[results[0]['event_state']].text
 
- 
-  
+def get_shop_items(game):
+    # Check what state shop is in
+    (max_round, current_round) = (game['max_round'], game['round'])
+    if current_round / max_round <= 0.25:
+        include = ['common']
+    elif current_round / max_round <= 0.5:
+        include = ['common', 'rare']
+    elif current_round / max_round <= 0.75:
+        include = ['common', 'rare', 'epic']
+    else:
+        include = ['common', 'rare', 'epic', 'legendary']
+
+    # Set item prices
+    item_prices = {
+        'common': 600,
+        'rare': 1200,
+        'epic': 1800,
+        'legendary': 2400
+    }
+
+    # Create items into list
+    items = []
+    i = 0
+    for item in item_list:
+        if item.rarity != 'artifact' and item.rarity in include:
+            items.append({'id': i, 'name': item.name, 'description': item.description, 'price': item_prices[item.rarity], 'rarity': item.rarity})
+            i += 1
+
+    return items
+
 #---- POST ----#
 
 def create_new_game(data):
@@ -101,6 +132,36 @@ def end_turn(game_id):
 
     return game
 
+def use_player_item(item_name, game_id):
+    # Get current player's turn
+    cursor.execute("SELECT player_turn FROM game WHERE id = %s", (game_id,))
+    current_player = cursor.fetchone()[0]
+
+    # Check if player has item
+    cursor.execute("SELECT * FROM item WHERE player_id = %s AND name = %s LIMIT 1", (current_player, item_name))
+    item_id = cursor.fetchone()
+    
+    if item_id is None:
+        return 'Player does not have item.'
+
+    # Use item
+    for item in item_list:
+        if item.name == item_name:
+            # Check if item is usable
+            if item.usable is False:
+                return 'Item is not usable.'
+            
+            # Remove item
+            cursor.execute("DELETE FROM item WHERE id = %s", (item_id[0],))
+
+            # Add item to active effects
+            cursor.execute("INSERT INTO active_effect (effect_name, player_id, duration) VALUES (%s, %s, %s)", (item.name, current_player, item.duration))
+
+            result = item.perform_func(game_id)
+            break
+    
+    return result
+
 def update_event(data, game_id):
     # Get option
     event_option = data.get('event_option') - 1
@@ -131,3 +192,26 @@ def update_event(data, game_id):
         # Flavor text from whatever event did and new event state
         final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
         return final_string
+
+def buy_item(item_id, shop_items, game):
+    # alert if item out of bounds
+    if item_id >= len(shop_items):
+        return 'item id outside of bounds'
+
+    # Get what item player wants to buy
+    item_to_buy = shop_items[item_id]
+
+    # Get player balance
+    cursor.execute("SELECT balance FROM player WHERE id = %s", (game['player_turn'],))
+    balance = cursor.fetchone()[0]
+
+    if balance < item_to_buy['price']:
+        return 'You do not have enough money to buy this item'
+
+    # Remove the money
+    cursor.execute("UPDATE player SET balance = balance - %s WHERE id = %s", (item_to_buy['price'], game['player_turn']))
+
+    # Add the item
+    cursor.execute("INSERT INTO item VALUES (DEFAULT, %s, %s, %s)", (item_to_buy['name'], game['player_turn'], item_to_buy['rarity']))
+    print('bought item')
+    return 'successfully bought item'

@@ -26,4 +26,4 @@ class Item:
         self.func = func
 
     def perform_func(self, game_id):
-        return self.func(game_id, self.duration, self.usable)
+        return self.func(game_id, self.name, self.duration, self.usable)
