@@ -36,21 +36,17 @@ def get_event(game_id):
     rows = cursor.fetchall()
     results = _rows_to_dicts(rows)
 
-    # Check if player is out of moves
-    if results[0]['moves'] == 0 and results[0]['event_id'] is None:
-        return "Not enough moves to explore more."
-
-    # Check if there is an event already going on
+    # Check if there is no active event
     if results[0]['event_id'] is None:
-        event_id = random.randint(0, len(event_list) - 1)
-        cursor.execute("UPDATE game SET event_id = %s, event_state = 0, moves = moves - 1 WHERE id = %s", (event_id, game_id,))
-        event = event_list[event_id]
-        return event.states[0].text
+        return "No active event."
 
     # Display existing event's state
-    else:
-        event = event_list[results[0]['event_id']]
-        return event.states[results[0]['event_state']].text
+    event = event_list[results[0]['event_id']]
+    choices = {}
+    for choice in event.states[results[0]['event_state']].choices:
+        choices[len(choices) + 1] = choice.text
+
+    return {"text": event.states[results[0]['event_state']].text, "choices": choices}
 
 def get_shop_items(game):
     # Check what state shop is in
@@ -125,7 +121,7 @@ def end_turn(game_id):
     round_passed = 1 if next_index == 0 else 0
 
     # Update game with next player's turn
-    cursor.execute("UPDATE game SET player_turn = %s, round = round + %s, moves = 2 WHERE id = %s", (next_player_id, round_passed, game_id))
+    cursor.execute("UPDATE game SET player_turn = %s, round = round + %s, moves = 2, event_id = NULL, event_state = NULL WHERE id = %s", (next_player_id, round_passed, game_id))
 
     # Return updated game state
     game = get_games(game_id)
@@ -167,17 +163,32 @@ def update_event(data, game_id):
     event_option = data.get('event_option') - 1
 
     # Get current event & state from db
-    cursor.execute("SELECT event_id, event_state FROM game WHERE id = %s", (game_id,))
+    cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
     rows = cursor.fetchall()
-    event_in_db = _rows_to_dicts(rows)
+    results = _rows_to_dicts(rows)
 
     # Check if there is an active event
-    if event_in_db[0]['event_id'] is None:
-        return "No event is active."
+    if results[0]['event_id'] is None:
+        # Check if player is out of moves
+        if results[0]['moves'] == 0:
+            return "Not enough moves to explore more."
+
+        # Start new event
+        event_id = random.randint(0, len(event_list) - 1)
+        cursor.execute("UPDATE game SET event_id = %s, event_state = 0, moves = moves - 1 WHERE id = %s", (event_id, game_id,))
+        
+        # Get event and choices
+        event = event_list[event_id]
+        choices = {}
+        for choice in event.states[0].choices:
+            choices[len(choices) + 1] = choice.text
+
+        # Return first event state text and choices
+        return {"text": event.states[0].text, "choices": choices}
 
     # Get current event, current event state, event choice
-    current_event = event_list[event_in_db[0]['event_id']]
-    event_state = current_event.states[event_in_db[0]['event_state']]
+    current_event = event_list[results[0]['event_id']]
+    event_state = current_event.states[results[0]['event_state']]
     event_choice = event_state.choices[event_option]
 
     # Perform choice function if function is given and update new state to db
@@ -186,12 +197,16 @@ def update_event(data, game_id):
         flavor = event_choice.perform_func(game_id)
     if event_choice.next_state == "final":
         cursor.execute("UPDATE game SET event_id = NULL, event_state = NULL WHERE id = %s", (game_id,))
-        return ""
+        return "final"
     else:
         cursor.execute("UPDATE game SET event_state = %s WHERE id = %s", (event_choice.next_state, game_id))
+        # Get new event choices
+        choices = {}
+        for choice in current_event.states[event_choice.next_state].choices:
+            choices[len(choices) + 1] = choice.text
         # Flavor text from whatever event did and new event state
         final_string = f"{flavor}{current_event.states[event_choice.next_state].text}"
-        return final_string
+        return {"text": final_string, "choices": choices}
 
 def buy_item(item_id, shop_items, game):
     # alert if item out of bounds

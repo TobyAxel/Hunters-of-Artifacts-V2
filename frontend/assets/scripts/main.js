@@ -292,11 +292,74 @@ function openScreen(screenName) {
     for (const screen in elements.screens) {
         elements.screens[screen].style.display = "none";
     }
-    elements.screens[screenName].style.display = "block";
+    elements.screens[screenName].style.display = "flex";
 }
 
 async function openExploreScreen() {
     openScreen("explore");
+
+    // get current event
+    await fetch(`${appState.backendBaseUrl}/events/${appState.gameId}`, { method:"GET"}).then(async (req) => {
+        const res = await req.json();
+
+        if (res.event === "No active event.") {
+            elements.screens.explore.innerHTML = `<button class="explore-button" onclick="eventNextState(1)">Explore</button>`;
+            return;
+        }
+
+        displayEventState(res.event);
+    });
+}
+
+async function eventNextState(choice) {
+    await fetch(`${appState.backendBaseUrl}/events/${appState.gameId}`, {
+        method: "POST",
+        body: JSON.stringify({ event_option: choice }),
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+    }).then(async (req) => {
+        const res = await req.json();
+        if (res.event === "Not enough moves to explore more.") {
+            window.alert("Not enough moves to explore more.");
+            return;
+        }
+        else if (res.event === "final") {
+            elements.screens.explore.innerHTML = `<button class="explore-button" onclick="eventNextState(1)">Explore</button>`;
+            return;
+        }
+        displayEventState(res.event);
+    });
+}
+
+async function displayEventState(eventInfo) {
+    console.log(eventInfo);
+    // Display event text and choices
+    const event_container = document.createElement("div");
+    event_container.classList.add("event-container");
+
+    const event_text = document.createElement("p");
+    event_text.innerHTML = eventInfo.text;
+    event_text.classList.add("event-text");
+
+    const event_choices = document.createElement("div");
+    event_choices.classList.add("event-choices");
+
+    for (const i in eventInfo.choices) {
+        const choice = document.createElement("button");
+        choice.innerHTML = eventInfo.choices[i]
+        choice.classList.add("event-button");
+        choice.addEventListener("click", () => eventNextState(Number(i)));
+
+        event_choices.appendChild(choice);
+    }
+
+    elements.screens.explore.innerHTML = "";
+    event_container.appendChild(event_text);
+    event_container.appendChild(event_choices);
+
+    elements.screens.explore.appendChild(event_container);
 }
 
 async function openTravelScreen() {

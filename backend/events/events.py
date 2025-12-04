@@ -3,15 +3,15 @@ from events.event_funcs import *
 import random
 
 gambler_event = Event([
-    State("You meet a gambler. Gamble?\n1. Yes\n2. No", [
-        Choice(add_money, [random.randint(-1000, 1000)], 2),
-        Choice(None, None, 1),
+    State("You meet a gambler. Gamble?", [
+        Choice("Yes", add_money, [random.randint(-1000, 1000)], 2),
+        Choice("No", None, None, 1),
     ]),
-    State("You choose not to partake in unauthorized gambling.\nPress enter to continue...", [
-        Choice(None, None, "final"),
+    State("You choose not to partake in unauthorized gambling.", [
+        Choice("Continue", None, None, "final"),
     ]),
     State("Press enter to continue...", [
-        Choice(None, None, "final"),
+        Choice("Continue", None, None, "final"),
     ])
 ])
 
