@@ -1,5 +1,6 @@
 from backend.events.common_events import *
 from backend.events.rare_events import *
+from backend.events.epic_events import *
 import random
 
 event_list = [
@@ -14,4 +15,9 @@ event_list = [
     gambler_table_event,
     lost_ticket_event,
     strange_collector_event,
-    abandoned_luggage_event]
+    abandoned_luggage_event,
+    auction_event,
+    terminal_of_faces_event,
+    forgotten_locker_event,
+    suspicious_individual_event,
+    ]
