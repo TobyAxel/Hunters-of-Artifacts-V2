@@ -321,6 +321,7 @@ async function eventNextState(choice) {
         },
     }).then(async (req) => {
         const res = await req.json();
+
         if (res.event === "Not enough moves to explore more.") {
             window.alert("Not enough moves to explore more.");
             return;
@@ -329,6 +330,7 @@ async function eventNextState(choice) {
             elements.screens.explore.innerHTML = `<button class="explore-button" onclick="eventNextState(1)">Explore</button>`;
             return;
         }
+      
         displayEventState(res.event);
     });
 }

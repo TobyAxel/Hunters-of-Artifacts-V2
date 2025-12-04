@@ -1,20 +1,29 @@
-from game_classes import *
-from events.event_funcs import *
+from backend.events.common_events import *
+from backend.events.rare_events import *
+from backend.events.epic_events import *
+from backend.events.legendary_events import *
 import random
 
-gambler_event = Event([
-    State("You meet a gambler. Gamble?", [
-        Choice("Yes", add_money, [random.randint(-1000, 1000)], 2),
-        Choice("No", None, None, 1),
-    ]),
-    State("You choose not to partake in unauthorized gambling.", [
-        Choice("Continue", None, None, "final"),
-    ]),
-    State("Press enter to continue...", [
-        Choice("Continue", None, None, "final"),
-    ])
-])
-
 event_list = [
-    gambler_event
-]
+    gambler_event,
+    hidden_terminal_pass_event,
+    cash_on_floor_event,
+    risky_stash_event,
+    energy_drink_event,
+    broken_atm_event,
+    street_musician_event,
+    broken_vending_machine_event,
+    gambler_table_event,
+    lost_ticket_event,
+    strange_collector_event,
+    abandoned_luggage_event,
+    auction_event,
+    terminal_of_faces_event,
+    forgotten_locker_event,
+    suspicious_individual_event,
+    ancient_vault_event,
+    locked_briefcase_event,
+    data_vault_event,
+    abandoned_space_pod_event,
+    time_capsule_event
+    ]

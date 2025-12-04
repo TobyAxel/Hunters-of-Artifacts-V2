@@ -49,6 +49,7 @@ def get_event(game_id):
     # Display existing event's state
     event = event_list[results[0]['event_id']]
     choices = {}
+
     for choice in event.states[results[0]['event_state']].choices:
         choices[len(choices) + 1] = choice.text
 
