@@ -77,12 +77,6 @@ const elements = {
     }
 };
 
-/* 
-TODO:
-- check local storage for game id
-- if it exists in local storage, check on backend side
- */
-
 async function main() {
     // Initially insert elements
     // Add two player inputs by default to the game create form
@@ -140,11 +134,6 @@ async function showGameSelect() {
     // show modal (dialog)
     elements.gameSelect.dialog.showModal();
 }
-
-/* 
-TODO:
-- fetch game data and add it into state
- */
 
 async function openGame(gameId) {
     appState.gameId = Number(gameId);
