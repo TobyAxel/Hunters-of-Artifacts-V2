@@ -6,8 +6,7 @@
 - /games/game_id/players
   - Gets all players in specified game
 - /events/game_id
-  - Gets current event's state, or creates and returns new random event
-  - Disallows starting an event if no moves are left
+  - Gets current event's state
 - /shop/game_id
   - Get all items in current game's shop
 
@@ -29,7 +28,8 @@
 - /games/game_id/end-turn
     - Ends player's turn, and returns next turn's relevant info
 - /events/game_id
-  - Updates event by running users option
+  - Updates event by running users option, or creates new event if none exists
+  - Disallows starting event if no moves are left
   - Returns new event state
     ```
     {

@@ -297,6 +297,36 @@ function openScreen(screenName) {
 
 async function openExploreScreen() {
     openScreen("explore");
+
+    // get current event
+    await fetch(`${appState.backendBaseUrl}/events/${appState.gameId}`, { method:"GET"}).then(async (req) => {
+        const res = await req.json();
+
+        if (res.event === "No active event.") {
+            elements.screens.explore.innerHTML = `<button class="explore-button" onclick="eventNextState(1)">Explore</button>`;
+            return;
+        }
+
+        displayEventState(res.event);
+    });
+}
+
+async function eventNextState(choice) {
+    await fetch(`${appState.backendBaseUrl}/events/${appState.gameId}`, {
+        method: "POST",
+        body: JSON.stringify({ event_option: choice }),
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+    }).then(async (req) => {
+        const res = await req.json();
+        displayEventState(res.event);
+    });
+}
+
+async function displayEventState(eventInfo) {
+    // TODO
 }
 
 async function openTravelScreen() {
