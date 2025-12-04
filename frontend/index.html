@@ -47,12 +47,27 @@
                         <button class="primary-button" id="quit-action">6. Quit</button>
                     </div>
                 </div>
-                <div id="map">
-    
+                <div id="main-screen" class="tile"> 
+                    <div id="explore">
+                        <h1>Explore</h1>
+                    </div>
+                    <div id="map">
+                    </div>
+                    <div id="items">
+                        <h1>Explore</h1>
+                    </div>
+                    <div id="shop">
+                        <div id="shop-items">
+                            <div id="common-shelf" class="shelf"></div>
+                            <div id="rare-shelf" class="shelf"></div>
+                            <div id="epic-shelf" class="shelf"></div>
+                            <div id="legendary-shelf" class="shelf"></div>
+                        </div>
+
+                        <img src="assets/images/shop-sign.png" alt="shop sign" id="shop-sign">
+                        <img src="assets/images/shopkeeper.png" alt="shopkeeper" id="shopkeeper">
+                    </div>
                 </div>
-            </div>
-            <div id="console" class="tile">
-                Tee jotain
             </div>
         </div>
         <div id="tiles-right">
@@ -114,11 +129,11 @@
                     </div>
                     <div class="input-wrap">
                         <label for="starting-distance">Starting distance:</label>
-                        <input type="number" name="starting_distance" id="starting-distance" placeholder="1" value="1" required />
+                        <input type="number" name="starting_distance" id="starting-distance" placeholder="0" value="0" required />
                     </div>
                     <div class="input-wrap">
                         <label for="starting-balance">Starting balance:</label>
-                        <input type="number" name="starting_balance" id="starting-balance" placeholder="10000" value="10000" required />
+                        <input type="number" name="starting_balance" id="starting-balance" placeholder="500" value="500" required />
                     </div>
                     <div class="input-wrap">
                         <label for="starting-location">Starting location (ICAO):</label>

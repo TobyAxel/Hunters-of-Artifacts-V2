@@ -21,7 +21,7 @@ const appState = {
     },
     playerTurn: {
         name: "Some Player",
-        money: 10000,
+        money: 500,
         travelled: 0,
         movesLeft: 2,
     }
@@ -55,12 +55,22 @@ const elements = {
         name: document.querySelector("#switch-modal-name"),
         startMoveBtn: document.querySelector("#start-move")
     },
+    screens: {
+        explore: document.querySelector("#explore"),
+        map: document.querySelector("#map"),
+        items: document.querySelector("#items"),
+        shop: document.querySelector("#shop"),
+    },
     shop: {
-        dialog: document.querySelector("#shop-modal"),
-        shopItems: document.querySelector("#shop-items")
+        commonItemsContainer: document.querySelector("#common-shelf"),
+        rareItemsContainer: document.querySelector("#rare-shelf"),
+        epicItemsContainer: document.querySelector("#epic-shelf"),
+        legendaryItemsContainer: document.querySelector("#legendary-shelf"),
     },
     actionButtons: {
         exploreBtn: document.querySelector("#explore-action"),
+        travelBtn: document.querySelector("#travel-action"),
+        itemBtn: document.querySelector("#item-action"),
         shopBtn: document.querySelector("#shop-action"),
         endturnBtn: document.querySelector("#end-turn-action"),
         quitBtn: document.querySelector("#quit-action"),
@@ -104,6 +114,7 @@ async function showGameSelect() {
     });
 
     // display games in modal
+    elements.gameSelect.gameListContainer.innerHTML = ""; // clear previous list
     for(const n in appState.gameList) {
         const game = appState.gameList[n];
         const newButton = createElement("label", {
@@ -139,8 +150,7 @@ async function openGame(gameId) {
     appState.gameId = Number(gameId);
     elements.gameSelect.dialog.close();
     elements.gameCreate.dialog.close();
-    window.localStorage.setItem("game_id", gameId);
-    
+    window.localStorage.setItem("game_id", gameId);    
     await switchMove(true);
 }
 
@@ -288,8 +298,105 @@ async function gameCreateSubmit(e) {
     });
 }
 
+function openScreen(screenName) {
+    // Close other screens and open selected screen
+    for (const screen in elements.screens) {
+        elements.screens[screen].style.display = "none";
+    }
+    elements.screens[screenName].style.display = "block";
+}
+
+async function openExploreScreen() {
+    openScreen("explore");
+}
+
+async function openTravelScreen() {
+    openScreen("map");
+}  
+
+async function openItemsScreen() {
+    openScreen("items");
+}
+
+async function openShopScreen() {
+    openScreen("shop");
+
+    // get shop items
+    await fetch(`${appState.backendBaseUrl}/shop/${appState.gameId}`, { method:"GET"}).then(async (req) => {
+        // parse items by rarity
+        const res = await req.json();
+        const items = res.shop;
+
+        // add items to respective containers
+        elements.shop.commonItemsContainer.innerHTML = "";
+        elements.shop.rareItemsContainer.innerHTML = "";
+        elements.shop.epicItemsContainer.innerHTML = "";
+        elements.shop.legendaryItemsContainer.innerHTML = "";
+
+        for(const i in items) {
+            const item = items[i];
+
+            // create item element
+            const item_element = createElement("div");
+            item_element.classList.add("shop-item");
+            item_element.innerHTML = `<img src="./assets/images/items/${item.name}.png" alt="${item.name}">`;
+            item_element.setAttribute('title', `Name: ${item.name} \nDescription: ${item.description}`);
+            
+            item_element.addEventListener("click", () => {
+                const confirmPurchase = window.confirm(`Do you want to purchase ${item.name} for ${item.price}€?`);
+                if(confirmPurchase) {
+                    buyItem(item.id);
+                }
+            });
+
+            // Create price label
+            const price_label = createElement("span");
+            price_label.innerHTML = `${item.price}€`;
+            price_label.classList.add("item-price-label");
+            item_element.appendChild(price_label);
+
+            switch(item.rarity) {
+                case "common":
+                    elements.shop.commonItemsContainer.appendChild(item_element);
+                    break;
+                case "rare":
+                    elements.shop.rareItemsContainer.appendChild(item_element);
+                    break;
+                case "epic":
+                    elements.shop.epicItemsContainer.appendChild(item_element);
+                    break;
+                case "legendary":
+                    elements.shop.legendaryItemsContainer.appendChild(item_element);
+                    break;
+            }
+        }
+
+        console.log(items);
+    });
+}
+
+async function buyItem(itemId) {
+    await fetch(`${appState.backendBaseUrl}/shop/${appState.gameId}`, {
+        method: "POST",
+        body: JSON.stringify({ item_id: itemId }),
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+    }).then(async (req) => {
+        const res = await req.json();
+        window.alert(res.message);
+    });
+}
+
+async function endTurn() {
+    await switchMove(false);
+    openScreen("map");
+}
+
 async function exitGame() {
     window.localStorage.setItem("game_id", false);
+    openScreen("map");
     await showGameSelect();
 }
 
@@ -300,7 +407,11 @@ elements.gameCreate.addPlayerInputBtn.addEventListener("click", addPlayerInput);
 elements.gameCreate.backBtn.addEventListener("click", switchToGameSelect);
 elements.gameCreate.form.addEventListener("submit", gameCreateSubmit);
 elements.moveSwitch.startMoveBtn.addEventListener("click", switchMoveConfirm);
-elements.actionButtons.endturnBtn.addEventListener("click", () => {switchMove(false)});
+elements.actionButtons.exploreBtn.addEventListener("click", openExploreScreen);
+elements.actionButtons.travelBtn.addEventListener("click", openTravelScreen);
+elements.actionButtons.itemBtn.addEventListener("click", openItemsScreen);
+elements.actionButtons.shopBtn.addEventListener("click", openShopScreen);
+elements.actionButtons.endturnBtn.addEventListener("click", endTurn);
 elements.actionButtons.quitBtn.addEventListener("click", exitGame)
 
 // Main/entry function

@@ -1,4 +1,4 @@
-from backend.sql_connection import *
+from sql_connection import *
 
 def add_money(amount, game_id):
     if amount < 0:

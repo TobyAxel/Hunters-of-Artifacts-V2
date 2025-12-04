@@ -72,11 +72,11 @@ def get_shop_items(game):
     }
 
     # Create items into list
-    items = [{'id': 0, 'name': 'exit', 'price': 0, 'rarity': ''}]
-    i = 1
+    items = []
+    i = 0
     for item in item_list:
         if item.rarity != 'artifact' and item.rarity in include:
-            items.append({'id': i, 'name': item.name, 'price': item_prices[item.rarity], 'rarity': item.rarity})
+            items.append({'id': i, 'name': item.name, 'description': item.description, 'price': item_prices[item.rarity], 'rarity': item.rarity})
             i += 1
 
     return items
@@ -163,10 +163,8 @@ def update_event(data, game_id):
         return final_string
 
 def buy_item(item_id, shop_items, game):
-    # Return exit message if id is 0, or alert if item out of bounds
-    if item_id == 0:
-        return 'exit'
-    elif item_id >= len(shop_items):
+    # alert if item out of bounds
+    if item_id >= len(shop_items):
         return 'item id outside of bounds'
 
     # Get what item player wants to buy
