@@ -72,7 +72,7 @@ def buy_item_chance(item, amount, chance, game_id):
 def sell_item(amount, game_id):
     cursor.execute("SELECT * FROM item WHERE rarity = 'common' AND player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
     item = cursor.fetchone()
-    if item.len > 0:
+    if item is not None:
         cursor.execute("DELETE FROM item WHERE player_id = (SELECT player_turn FROM game WHERE id = %s) AND name = %s LIMIT 1", (game_id, item))
         return add_money(amount, game_id)
     else:

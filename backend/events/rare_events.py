@@ -32,9 +32,9 @@ lost_ticket_event = Event([
 strange_collector_event = Event([
     State("A Strange collector approaches you. He offers to buy one of your items at a 'good price'.", [
         Choice("Yes", sell_item, [600], 2),
-        Choice("No", None, None, "final"),
+        Choice("No", None, None, 1),
     ]),
-    State("You decline the collector's offer", [
+    State("You decline the collector's offer.", [
         Choice("Continue",None, None, "final"),
     ]),
     State("Press enter to continue...", [

@@ -11,7 +11,7 @@ auction_event = Event([
     State("You leave before anyone notices you.", [
         Choice("Continue",None, None, "final"),
     ]),
-    State("Press enter to continue ...", [
+    State("Press enter to continue...", [
         Choice("Continue",None, None, "final"),
     ])
 ])
@@ -24,7 +24,7 @@ terminal_of_faces_event = Event([
     State("You decide to just walk away.", [
         Choice("Continue",None, None, "final"),
     ]),
-    State("Press enter to continue ...", [
+    State("Press enter to continue...", [
         Choice("Continue",None, None, "final"),
     ])
 ])
@@ -34,10 +34,10 @@ forgotten_locker_event = Event([
         Choice("Yes", add_item_money, [magical_stopwatch, 40, random.randint(800, 1200)], 2),
         Choice("No", None, None, 1),
     ]),
-    State("You leave the locker alone", [
+    State("You leave the locker alone.", [
         Choice("Continue",None, None, "final"),
     ]),
-    State("Press enter to continue ...", [
+    State("Press enter to continue...", [
         Choice("Continue",None, None, "final"),
     ])
 ])

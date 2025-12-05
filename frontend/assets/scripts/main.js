@@ -330,7 +330,12 @@ async function eventNextState(choice) {
             elements.screens.explore.innerHTML = `<button class="explore-button" onclick="eventNextState(1)">Explore</button>`;
             return;
         }
-      
+
+        if (res.error) {
+            window.alert(res.error);
+            return;
+        }
+
         displayEventState(res.event);
     });
 }

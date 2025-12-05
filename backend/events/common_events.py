@@ -8,7 +8,7 @@ gambler_event = Event([
         Choice("Yes",add_money, [random.randint(-1000, 1000)], 2),
         Choice("No", None, None, 1),
     ]),
-    State("You choose not to partake in unauthorized gambling.\nPress enter to continue...", [
+    State("You choose not to partake in unauthorized gambling. Press enter to continue...", [
         Choice("Continue", None, None, "final"),
     ]),
     State("Press enter to continue...", [
