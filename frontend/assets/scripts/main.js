@@ -482,6 +482,7 @@ async function buyItem(itemId) {
             "Content-Type": "application/json",
         },
     }).then(async (req) => {
+        updateData();
         const res = await req.json();
         window.alert(res.message);
     });
