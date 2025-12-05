@@ -20,10 +20,12 @@ const appState = {
         current_round: null,
     },
     playerTurn: {
+        id: 0,
         name: "Some Player",
         money: 500,
         travelled: 0,
         movesLeft: 2,
+        effects: []
     }
 };
 
@@ -34,7 +36,8 @@ const elements = {
         accountBalance: document.querySelector("#account-balance-info"),
         distanceTravelled: document.querySelector("#distance-travelled-info"),
         currentRoundNumber: document.querySelector("#current-round-number"),
-        currentRoundList: document.querySelector("#current-round-list")
+        currentRoundList: document.querySelector("#current-round-list"),
+        activeEffectList: document.querySelector('#active-effects-list')
     },
     gameSelect: {
         dialog: document.querySelector("dialog#game-select-modal"),
@@ -154,20 +157,13 @@ async function switchMove(initial) {
     await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}`).then(async (req) => {
         const res = await req.json();
         // Save data to app state
-        appState.playerTurn.name = res[0].player_turn;
         appState.gameInfo.max_round = res[0].max_round;
         appState.gameInfo.current_round = res[0].round;
-        appState.playerTurn.movesLeft = res[0].moves;
+        appState.playerTurn.id = res[0].player_turn;
     });
-    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/players`).then(async (req) => {
-        const res = await req.json();
-        // Save data to app state
-        for (let i = 0; i < res.length; i++) {
-            res[i].screen_name
-        }
-    });
+
     // Display data from app state in the elements
-    elements.info.player.innerHTML = appState.playerTurn.name;
+    await updateData()
     elements.info.moves.innerHTML = `${appState.playerTurn.movesLeft} moves left`;
     elements.info.currentRoundNumber.innerHTML = `${appState.gameInfo.current_round}/${appState.gameInfo.max_round}`
 
@@ -178,6 +174,48 @@ async function switchMove(initial) {
 
 function switchMoveConfirm() {
     elements.moveSwitch.dialog.close();
+}
+
+async function updateData() {
+    // Fetch and store user data
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/players`).then(async (req) => {
+        const res = await req.json();
+
+        for (let i in res) {
+            const player = res[i];
+
+            if (player.id !== appState.playerTurn.id) continue
+
+            appState.playerTurn.name = player.screen_name;
+            appState.playerTurn.money = player.balance;
+            appState.playerTurn.travelled = player.distance_travelled;
+        }
+    });
+    // Fetch and store player's active effects
+    await fetch(`${appState.backendBaseUrl}/player/active-effects/${appState.playerTurn.id}`).then(async (req) => {
+        const res = await req.json();
+        // Save data to app state
+        console.log(res)
+        appState.playerTurn.effects = res;
+    });
+    // Fetch and store game data
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}`).then(async (req) => {
+        const res = await req.json();
+        // Save data to app state
+        appState.playerTurn.movesLeft = res[0].moves;
+    });
+
+    // Update html elements
+    elements.info.player.innerHTML = appState.playerTurn.name;
+    elements.info.accountBalance.innerHTML = appState.playerTurn.money + '€';
+    elements.info.distanceTravelled.innerHTML = appState.playerTurn.travelled + 'km travelled';
+    elements.info.moves.innerHTML = appState.playerTurn.movesLeft + ' moves left';
+
+    elements.info.activeEffectList.innerHTML = "";
+    for (let i in appState.playerTurn.effects) {
+        const effect = appState.playerTurn.effects[i];
+        elements.info.activeEffectList.innerHTML += `${effect.effect_name} - ${effect.duration > 0 ? effect.duration + ' turns left' : 'Ends this turn'}`
+    }
 }
 
 // Event listener functions
@@ -336,6 +374,7 @@ async function eventNextState(choice) {
             return;
         }
 
+        updateData()
         displayEventState(res.event);
     });
 }

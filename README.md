@@ -38,13 +38,19 @@
     ```
 - /shop/game_id
   - Attempts to purchase the item
-  - Returns whether or not purchase succeeded
+  - Returns whether purchase succeeded
     ```
     {
         "item_id": int
     }
     ```
-
+- /items/game_id
+  - Attempts to use item via given name
+    ```
+    {
+        "item_name": "Item name"
+    }
+    ```
 ## Backend endpoint TODO
 - Handle items
 - Handle scoring
