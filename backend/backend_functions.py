@@ -1,7 +1,6 @@
 from events.events import *
 from events.event_funcs import *
 from items.item_list import *
-from items.item_functions import *
 import random
 
 
@@ -127,6 +126,8 @@ def end_turn(game_id):
     cursor.execute("SELECT player_turn FROM game WHERE id = %s", (game_id,))
     current_player_id = cursor.fetchone()[0]
 
+    lower_effects(current_player_id)
+
     # Get all player ids in the game
     cursor.execute("SELECT id FROM player WHERE game_id = %s ORDER BY id", (game_id,))
     player_ids = [row[0] for row in cursor.fetchall()]
@@ -147,6 +148,19 @@ def end_turn(game_id):
 
     return game
 
+def lower_effects(player_id):
+    cursor.execute("SELECT * FROM active_effect WHERE player_id = %s", (player_id,))
+    effects = cursor.fetchall()
+
+    for effect in effects:
+        # Lower duration
+        new_duration = effect[3] - 1
+
+        if new_duration <= 0:
+            cursor.execute("DELETE FROM active_effect WHERE id = %s", (effect[0],))
+        else:
+            cursor.execute("UPDATE active_effect SET duration = %s WHERE id = %s", (new_duration, effect[0],))
+
 def use_player_item(item_name, game_id):
     # Get current player's turn
     cursor.execute("SELECT player_turn FROM game WHERE id = %s", (game_id,))
@@ -160,6 +174,7 @@ def use_player_item(item_name, game_id):
         return 'Player does not have item.'
 
     # Use item
+    result = ""
     for item in item_list:
         if item.name == item_name:
             # Check if item is usable

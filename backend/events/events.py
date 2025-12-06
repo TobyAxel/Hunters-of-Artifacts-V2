@@ -5,6 +5,10 @@ from backend.events.legendary_events import *
 import random
 
 event_list = [
+    suspicious_individual_event
+]
+
+event_list1 = [
     gambler_event,
     hidden_terminal_pass_event,
     cash_on_floor_event,

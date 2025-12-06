@@ -26,7 +26,7 @@ def add_money_chance(amount_won, amount_lost, chance, game_id):
 #Function adds an item
 def add_item(item, game_id):
     if item.rarity == 'artifact':
-        cursor.execute("SELECT * FROM item WHERE rarity = 'artifact' WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
+        cursor.execute("SELECT * FROM item WHERE rarity = 'artifact' AND player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
         owned_artifacts = cursor.fetchall()
         for artifact in owned_artifacts:
             if item.name == artifact[1]:
@@ -85,25 +85,36 @@ def suspicious_individual_event_func(item, chance1, chance2, game_id):
         cursor.execute("SELECT * FROM item WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
         owned_items = cursor.fetchall()
         for items in owned_items:
-            if items.name == "Suspicious Package":
+            if items[1] == "Suspicious Package": # SQL returns tuple, not dict
                 #Get all artifacts
                 artifacts = []
-                for Item.name, Item.rarity in item_list:
-                    if Item.rarity == 'artifact':
-                        artifacts.append(Item.name)
+                for item2 in item_list:
+                    if item2.rarity == 'artifact':
+                        artifacts.append(item2)
+
                 #Remove owned artifacts from artifact pool
-                cursor.execute("SELECT * FROM item WHERE rarity = 'artifact' WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)",(game_id,))
-                owned_artifacts = cursor.fetchall()
-                for artifact in artifacts[:]:
-                    if artifact in owned_artifacts:
-                        artifacts.remove(artifact)
-                if len(artifacts) == 0:
+                cursor.execute("SELECT name FROM item WHERE rarity = 'artifact' AND player_id = (SELECT player_turn FROM game WHERE id = %s)",(game_id,))
+                owned_artifacts_raw = cursor.fetchall()
+
+                # Turn the query into usable list
+                owned_artifacts = []
+                for owned_artifact in owned_artifacts_raw:
+                    owned_artifacts.append(owned_artifact[0])
+
+                # Put unowned artifacts in their own list, as removing from a list we are iterating over
+                # Breaks stuff
+                unowned_artifacts = []
+                for artifact in artifacts:
+                    if artifact.name not in owned_artifacts:
+                        unowned_artifacts.append(artifact)
+
+                if len(unowned_artifacts) == 0:
                     return add_money(1750, game_id)
                 else:
-                    artifact = random.choice(artifacts)
+                    artifact = random.choice(unowned_artifacts)
                     return add_item(artifact, game_id)
-            else:
-                return add_money(1000, game_id)
+
+        return add_money(1000, game_id) # Needs to be outside for loop, instantly gives this if first item not suspicious package
     elif roll <= chance2:
         return add_money(-500, game_id)
     else:
@@ -115,21 +126,29 @@ def add_artifact(chance, chance2, amount, amount2, game_id):
         return add_money(amount, game_id)
     elif roll <= chance2:
         artifacts = []
-        for Item.name, Item.rarity in item_list:
-            if Item.rarity == 'artifact':
-                artifacts.append(Item.name)
+        for item2 in item_list:
+            if item2.rarity == 'artifact':
+                artifacts.append(item2)
         # Remove owned artifacts from artifact pool
-        cursor.execute(
-            "SELECT * FROM item WHERE rarity = 'artifact' WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)",
-            (game_id,))
-        owned_artifacts = cursor.fetchall()
-        for artifact in artifacts[:]:
-            if artifact in owned_artifacts:
-                artifacts.remove(artifact)
-        if len(artifacts) == 0:
+        cursor.execute("SELECT name FROM item WHERE rarity = 'artifact' AND player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
+        owned_artifacts_raw = cursor.fetchall()
+
+        # Turn the query into usable list
+        owned_artifacts = []
+        for owned_artifact in owned_artifacts_raw:
+            owned_artifacts.append(owned_artifact[0])
+
+        # Put unowned artifacts in their own list, as removing from a list we are iterating over
+        # Breaks stuff
+        unowned_artifacts = []
+        for artifact in artifacts:
+            if artifact.name not in owned_artifacts:
+                unowned_artifacts.append(artifact)
+
+        if len(unowned_artifacts) == 0:
             return add_money(amount2, game_id)
         else:
-            artifact = random.choice(artifacts)
+            artifact = random.choice(unowned_artifacts)
             return add_item(artifact, game_id)
     else:
         return "You gain nothing. "
