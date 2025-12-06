@@ -1,7 +1,6 @@
 from events.events import *
 from events.event_funcs import *
 from items.item_list import *
-from items.item_functions import *
 import random
 
 
@@ -155,12 +154,12 @@ def lower_effects(player_id):
 
     for effect in effects:
         # Lower duration
-        duration = effect[3] - 1
+        new_duration = effect[3] - 1
 
-        if duration <= 0:
+        if new_duration <= 0:
             cursor.execute("DELETE FROM active_effect WHERE id = %s", (effect[0],))
         else:
-            cursor.execute("UPDATE active_effect SET duration = %s WHERE id = %s", (duration, effect[0],))
+            cursor.execute("UPDATE active_effect SET duration = %s WHERE id = %s", (new_duration, effect[0],))
 
 def use_player_item(item_name, game_id):
     # Get current player's turn
@@ -175,6 +174,7 @@ def use_player_item(item_name, game_id):
         return 'Player does not have item.'
 
     # Use item
+    result = ""
     for item in item_list:
         if item.name == item_name:
             # Check if item is usable

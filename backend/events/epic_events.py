@@ -50,7 +50,7 @@ suspicious_individual_event = Event([
     State("You ignore the man", [
         Choice("Continue",None, None, "final"),
     ]),
-    State("Press enter to continue ...", [
+    State("Press enter to continue...", [
         Choice("Continue",None, None, "final"),
     ])
 ])

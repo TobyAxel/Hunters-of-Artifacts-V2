@@ -70,6 +70,9 @@ const elements = {
         epicItemsContainer: document.querySelector("#epic-shelf"),
         legendaryItemsContainer: document.querySelector("#legendary-shelf"),
     },
+    items: {
+        itemsContainer: document.querySelector("#item-grid")
+    },
     actionButtons: {
         exploreBtn: document.querySelector("#explore-action"),
         travelBtn: document.querySelector("#travel-action"),
@@ -193,10 +196,8 @@ async function updateData() {
     });
     // Fetch and store player's active effects
     await fetch(`${appState.backendBaseUrl}/player/active-effects/${appState.playerTurn.id}`).then(async (req) => {
-        const res = await req.json();
         // Save data to app state
-        console.log(res)
-        appState.playerTurn.effects = res;
+        appState.playerTurn.effects = await req.json();
     });
     // Fetch and store game data
     await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}`).then(async (req) => {
@@ -214,7 +215,8 @@ async function updateData() {
     elements.info.activeEffectList.innerHTML = "";
     for (let i in appState.playerTurn.effects) {
         const effect = appState.playerTurn.effects[i];
-        elements.info.activeEffectList.innerHTML += `${effect.effect_name} - ${effect.duration > 0 ? effect.duration + ' turns left' : 'Ends this turn'}`
+        if (effect.duration === 0) continue;
+        elements.info.activeEffectList.innerHTML += `<div>${effect.effect_name} - ${effect.duration > 1 ? effect.duration + ' turns left' : 'Ends this turn'}</div>`
     }
 }
 
@@ -334,8 +336,6 @@ function openScreen(screenName) {
 }
 
 async function openExploreScreen() {
-    openScreen("explore");
-
     // get current event
     await fetch(`${appState.backendBaseUrl}/events/${appState.gameId}`, { method:"GET"}).then(async (req) => {
         const res = await req.json();
@@ -347,6 +347,8 @@ async function openExploreScreen() {
 
         displayEventState(res.event);
     });
+
+    openScreen("explore");
 }
 
 async function eventNextState(choice) {
@@ -413,12 +415,50 @@ async function openTravelScreen() {
 }  
 
 async function openItemsScreen() {
+    await fetch(`${appState.backendBaseUrl}/player/items/${appState.playerTurn.id}`, { method:"GET"}).then(async (req) => {
+        const res = await req.json();
+
+        console.log(res);
+        
+        elements.items.itemsContainer.innerHTML = "";
+        for (let i in res) {
+            const item = res[i];
+            const item_element = document.createElement("div");
+            item_element.classList.add("item");
+            item_element.innerHTML = `<img src="./assets/images/items/${item.name}.png" alt="${item.name}">`;
+            item_element.setAttribute('title', `Name: ${item.name} \nDescription: ${item.description}`)
+
+            item_element.addEventListener('click', function() {useItem(item, item_element)});
+
+            elements.items.itemsContainer.appendChild(item_element);
+        }
+    });
+    
     openScreen("items");
 }
 
-async function openShopScreen() {
-    openScreen("shop");
+async function useItem(item, element) {
+    const confirmUse = window.confirm(`Do you want to use ${item.name}?`);
+    if(confirmUse) {
+        await fetch(`${appState.backendBaseUrl}/items/${appState.gameId}`, {
+            method: "POST",
+            body: JSON.stringify({item_name: item.name}),
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            },
+        }).then(async (req) => {
+            const res = await req.json();
+            if (res.message !== "Item is not usable.") {
+                updateData();
+                element.parentNode.removeChild(element);
+            }
+            window.alert(res.message);
+        });
+    }
+}
 
+async function openShopScreen() {
     // get shop items
     await fetch(`${appState.backendBaseUrl}/shop/${appState.gameId}`, { method:"GET"}).then(async (req) => {
         // parse items by rarity
@@ -436,7 +476,7 @@ async function openShopScreen() {
 
             // create item element
             const item_element = createElement("div");
-            item_element.classList.add("shop-item");
+            item_element.classList.add("item");
             item_element.innerHTML = `<img src="./assets/images/items/${item.name}.png" alt="${item.name}">`;
             item_element.setAttribute('title', `Name: ${item.name} \nDescription: ${item.description}`);
             
@@ -471,6 +511,8 @@ async function openShopScreen() {
 
         console.log(items);
     });
+
+    openScreen("shop");
 }
 
 async function buyItem(itemId) {

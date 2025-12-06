@@ -242,6 +242,25 @@ button {
     background-color: rgb(0, 0, 180);
 }
 
+#items {
+    background-color: dimgray;
+}
+
+#item-grid {
+    display: grid;
+    margin: 10px auto;
+
+    grid-template-columns: auto auto auto auto auto auto auto auto auto;
+    align-content: flex-start;
+    gap: 10px;
+}
+
+#item-grid .item {
+    background-color: rgba(20,20,20,0.3);
+    border: 1px black solid;
+    border-radius: 12px;
+}
+
 #shop {
     background-image: url("../images/shop-background.webp");
     background-repeat: repeat;
@@ -273,7 +292,7 @@ button {
     width: 400px;
 }
 
-.shop-item {
+.item {
     position: relative;
     display: flex;
     
@@ -283,7 +302,7 @@ button {
     cursor: pointer;
 }
 
-.shop-item img {
+.item img {
     position: absolute;
     height: 70%;
 
