@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from backend_functions import *
+from travel_functions import *
 app = Flask(__name__)
 CORS(app)
 
@@ -206,6 +207,19 @@ def player_items(player_id):
 def player_active_effects(player_id):
     try:
         result = get_active_effects(player_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify(result), 200
+
+@app.route('/player/<int:player_id>/airports', methods=['GET'])
+def player_find_airports(player_id):
+    try:
+        max_distance = request.args.get('max_distance')
+        if max_distance and not max_distance.isdecimal():
+            raise TypeError('max_distance must be a number')
+        if max_distance:
+            max_distance = round(float(max_distance), 2)
+        result = list_airports(player_id, max_distance)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
