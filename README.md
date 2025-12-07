@@ -9,6 +9,11 @@
   - Gets current event's state
 - /shop/game_id
   - Get all items in current game's shop
+- /player/<int:player_id>/airports?max_distance_km=1000
+  - Lists airports sorted from closest to farthest
+  - max_distance_km is an optional parameter, distance is unlimited if not specified
+- /player/<int:player_id>/travel?arr_ident=EETN
+  - Get travel information
 
 ### POST
 - /games
@@ -51,6 +56,8 @@
         "item_name": "Item name"
     }
     ```
+- /player/<int:player_id>/travel?arr_ident=EETN
+  - Travel player an airport
 ## Backend endpoint TODO
 - Handle items
 - Handle scoring

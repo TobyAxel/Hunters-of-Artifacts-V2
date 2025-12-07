@@ -1,6 +1,9 @@
+from typing import Any
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from backend_functions import *
+from travel_functions import *
 app = Flask(__name__)
 CORS(app)
 
@@ -209,6 +212,76 @@ def player_active_effects(player_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
+
+@app.route('/player/<int:player_id>/airports', methods=['GET'])
+def player_find_airports(player_id):
+    try:
+        # Get & validate max distance
+        max_distance_km = request.args.get('max_distance_km') # max_distance_km parameter is optional
+        # Check is max_distance_km decimal, but only when max distance is defined
+        if max_distance_km and not max_distance_km.isdecimal():
+            return jsonify({'error': "max_distance_km must be a number"}), 400
+        # If max_distance_km is defined, convert to the correct format
+        if max_distance_km:
+            max_distance_km = round(float(max_distance_km), 2)
+
+        # Check if user exists
+        player: list[dict[Any, Any]] = get_player(player_id)
+        if len(player) == 0:
+            return jsonify({'error': "No player with given id found"}), 404
+
+        result = list_airports(player_id, max_distance_km)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify(result), 200
+
+@app.route('/player/<int:player_id>/travel', methods=['GET', 'POST'])
+def player_travel(player_id):
+    try:
+        # Get & validate ident
+        arr_ident = request.args.get('arr_ident')
+        if not is_ident(arr_ident):
+            return jsonify({'error': "arr_ident must be a valid ident"}), 400
+
+        # Fetch player by the given id
+        player: list[dict[Any, Any]] = get_player(player_id)
+        # Check if user exists
+        if len(player) == 0:
+            return jsonify({'error': "No player with given id found"}), 404
+
+        # Check if player is at the requested airport already
+        if player[0]['location'] == arr_ident:
+            return jsonify({'error': "Given arr_ident must not be the same as player's location"}), 400
+
+        # Fetch travel details
+        travel_info: list[dict[Any, Any]] = fetch_travel_details(player_id, arr_ident)
+
+        # Check if the airport of arrival was found
+        if len(travel_info) == 0:
+            return jsonify({'error': "No airport with given ident found"}), 404
+
+        travel_price = travel_info[0]['travel_price']
+        distance_km = travel_info[0]['distance_km']
+
+        # Compare player's balance and travel price
+        if player[0]['balance'] < travel_price:
+            return jsonify({'error': "Player does not have enough money to travel"}), 400
+
+        if request.method == 'POST':
+            # Travel to the airport
+            travel(player_id, arr_ident, travel_price)
+            return jsonify({
+                "message": "Player successfully travelled",
+                "distance_km": distance_km,
+                "travel_price": travel_price
+            }), 200
+        elif request.method == 'GET':
+            return jsonify(travel_info[0]), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({'error': 'Invalid request method'}), 405
 
 # Run backend
 if __name__ == '__main__':
