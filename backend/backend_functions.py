@@ -1,15 +1,9 @@
+from backend.helper_functions import rows_to_dicts
 from events.events import *
 from events.event_funcs import *
 from items.item_list import *
 from items.item_functions import *
 import random
-
-
-#---- HELPER FUNCTIONS ----#
-
-def _rows_to_dicts(rows):
-    cols = [desc[0] for desc in cursor.description] if cursor.description else []
-    return [dict(zip(cols, row)) for row in rows]
 
 #---- GAME FUNCTIONS ----#
 
@@ -19,7 +13,7 @@ def get_games(game_id = None):
     # Fetch games, optionally by id
     cursor.execute("SELECT * FROM game WHERE archived = false AND (%s is NULL OR id = %s)", (game_id, game_id))
     rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
+    results = rows_to_dicts(rows)
     # convert datetime to iso format
     for res in results:
         res["created_at"] = res["created_at"].isoformat()
@@ -28,19 +22,19 @@ def get_games(game_id = None):
 def get_players(game_id):
     cursor.execute("SELECT * FROM player WHERE game_id = %s", (game_id,))
     rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
+    results = rows_to_dicts(rows)
     return results
 
 def get_player(player_id):
     cursor.execute("SELECT * FROM player WHERE id = %s", (player_id,))
     rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
+    results = rows_to_dicts(rows)
     return results
 
 def get_event(game_id):
     cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
     rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
+    results = rows_to_dicts(rows)
 
     # Check if there is no active event
     if results[0]['event_id'] is None:
@@ -58,13 +52,13 @@ def get_event(game_id):
 def get_items(player_id):
     cursor.execute("SELECT * FROM item WHERE player_id = %s", [player_id,])
     rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
+    results = rows_to_dicts(rows)
     return results
 
 def get_active_effects(player_id):
     cursor.execute("SELECT * FROM active_effect WHERE player_id = %s", [player_id,])
     rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
+    results = rows_to_dicts(rows)
     return results
 
 def get_shop_items(game):
@@ -184,7 +178,7 @@ def update_event(data, game_id):
     # Get current event & state from db
     cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
     rows = cursor.fetchall()
-    results = _rows_to_dicts(rows)
+    results = rows_to_dicts(rows)
 
     # Check if there is an active event
     if results[0]['event_id'] is None:
