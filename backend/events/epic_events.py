@@ -44,7 +44,7 @@ forgotten_locker_event = Event([
 
 suspicious_individual_event = Event([
     State("As you walk past an alley, a shady individual calls out to you. Do you approach him?", [
-        Choice("Yes", suspicious_individual_event_func, [finnicky_teleporter, 70, 80], 2),
+        Choice("Yes", suspicious_individual_event_func, [finnicky_teleporter, 75, 85], 2),
         Choice("No", None, None, 1),
     ]),
     State("You ignore the man", [

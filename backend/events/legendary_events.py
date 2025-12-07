@@ -44,7 +44,7 @@ data_vault_event = Event([
 
 abandoned_space_pod_event = Event([
     State("You find a half-buried escape pod in a scrapyard, it's lights still flickering faintly. Do you want to investigate the pod?", [
-        Choice("Yes", add_artifact, [45, 80, 2000, 5000], 2),
+        Choice("Yes", add_artifact, [35, 90, 1500, 5000], 2),
         Choice("No", None, None, 1),
     ]),
     State("You leave the pod alone.", [
@@ -57,7 +57,7 @@ abandoned_space_pod_event = Event([
 
 time_capsule_event = Event([
     State("You uncover a sealed time capsule marked 'open  in 2200'. Do you want to open in now?", [
-        Choice("Yes", add_artifact, [45, 80, 2500, 5000], 2),
+        Choice("Yes", add_artifact, [45, 90, 2500, 5000], 2),
         Choice("No", None, None, 1),
     ]),
     State("You leave the time capsule undisturbed.", [

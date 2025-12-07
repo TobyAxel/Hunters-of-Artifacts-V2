@@ -44,7 +44,7 @@ cash_on_floor_event = Event([
 
 risky_stash_event = Event([
     State("A sealed package sits on a bench. Do you want to open it?", [
-        Choice("Yes", add_item_money, [suspicious_package, 5, 400], 2),
+        Choice("Yes", add_item_money, [suspicious_package, 20, 400], 2),
         Choice("No", None, None, 1),
     ]),
     State("You leave the package untouched", [

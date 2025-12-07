@@ -202,7 +202,7 @@ def update_event(data, game_id):
             return "Not enough moves to explore more."
 
         # Start new event
-        event_id = random.randint(0, len(event_list) - 1)
+        event_id = event_handler(game_id)
         cursor.execute("UPDATE game SET event_id = %s, event_state = 0, moves = moves - 1 WHERE id = %s", (event_id, game_id,))
         
         # Get event and choices
