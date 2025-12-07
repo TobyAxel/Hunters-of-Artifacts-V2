@@ -115,7 +115,7 @@ def suspicious_individual_event_func(item, chance1, chance2, game_id):
                         unowned_artifacts.append(artifact)
 
                 if len(unowned_artifacts) == 0:
-                    return add_money(1750, game_id)
+                    return add_money(5000, game_id)
                 else:
                     artifact = random.choice(unowned_artifacts)
                     return add_item(artifact, game_id)

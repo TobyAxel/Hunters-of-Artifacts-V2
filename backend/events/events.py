@@ -6,7 +6,7 @@ import random
 
 def event_handler(game_id):
     #Default chances
-    common = 60
+    common = 55
     rare = 75
     epic = 90
     legendary = 100
@@ -32,9 +32,9 @@ def event_handler(game_id):
     if distance < 1250 // modifier:
         max_roll = 60
     elif distance < 2500 // modifier:
-        max_roll = 75
+        max_roll = 80
     elif distance < 4500 // modifier:
-        max_roll = 90
+        max_roll = 91
     else:
         max_roll = 100
 
