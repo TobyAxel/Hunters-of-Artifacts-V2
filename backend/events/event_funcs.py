@@ -71,12 +71,18 @@ def buy_item_chance(item, amount, chance, game_id):
 #Function deducts an item and adds the money for it
 def sell_item(amount, game_id):
     cursor.execute("SELECT * FROM item WHERE rarity = 'common' AND player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
-    item = cursor.fetchone()
-    if item is not None:
-        cursor.execute("DELETE FROM item WHERE player_id = (SELECT player_turn FROM game WHERE id = %s) AND name = %s LIMIT 1", (game_id, item))
-        return add_money(amount, game_id)
-    else:
+    items = cursor.fetchall()
+
+    if not items:
         return "You have no items to sell. "
+
+    item = items[0]
+
+    if item[3] is not None:
+        cursor.execute("DELETE FROM item WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)AND rarity = %s LIMIT 1", (game_id, item[3]))
+        return add_money(amount, game_id)
+
+    return "You have no items to sell. "
 
 #Function is only for suspicious_individual_event
 def suspicious_individual_event_func(item, chance1, chance2, game_id):
