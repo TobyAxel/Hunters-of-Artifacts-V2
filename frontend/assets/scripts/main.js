@@ -1,14 +1,5 @@
 "use strict";
 
-// Map initialization
-
-const map = L.map('map').setView([60.867883, 26.704160], 13);
-
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
-
 // State
 
 const appState = {
@@ -25,8 +16,10 @@ const appState = {
         money: 500,
         travelled: 0,
         movesLeft: 2,
+        location: null,
         effects: []
-    }
+    },
+    airports: [],
 };
 
 const elements = {
@@ -80,10 +73,56 @@ const elements = {
         shopBtn: document.querySelector("#shop-action"),
         endturnBtn: document.querySelector("#end-turn-action"),
         quitBtn: document.querySelector("#quit-action"),
-    }
+    },
+    map: {
+        map: L.map('map').setView([60.867883, 26.704160], 13),
+        airportsLayer: L.layerGroup([]),
+        airportMarkers: [],
+        airportMarker: L.divIcon({
+            className: 'custom-icon',
+            iconSize: [25, 25],
+            iconAnchor: [25, 25],
+            html: `
+            <svg width="25" height="25" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                <path fill="var(--primary-hover-bg)" d="
+                    M25 6
+                    A19 19 0 1 1 25 44
+                    A19 19 0 1 1 25 6
+                    Z
+
+                    M1 21 H9 V29 H1 Z
+                    M41 21 H49 V29 H41 Z
+                    M21 1 H29 V9 H21 Z
+                    M21 41 H29 V49 H21 Z
+                "/>
+            </svg>
+            `
+        }),
+        locationMarker: L.divIcon({
+            className: 'custom-icon',
+            iconSize: [60, 60],
+            iconAnchor: [60, 60],
+            html: `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                <!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                <path fill="var(--primary-hover-bg)"
+                    d="M376 88C376 57.1 350.9 32 320 32C289.1 32 264 57.1 264 88C264 118.9 289.1 144 320 144C350.9 144 376 118.9 376 88zM400 300.7L446.3 363.1C456.8 377.3 476.9 380.3 491.1 369.7C505.3 359.1 508.3 339.1 497.7 324.9L427.2 229.9C402 196 362.3 176 320 176C277.7 176 238 196 212.8 229.9L142.3 324.9C131.8 339.1 134.7 359.1 148.9 369.7C163.1 380.3 183.1 377.3 193.7 363.1L240 300.7L240 576C240 593.7 254.3 608 272 608C289.7 608 304 593.7 304 576L304 416C304 407.2 311.2 400 320 400C328.8 400 336 407.2 336 416L336 576C336 593.7 350.3 608 368 608C385.7 608 400 593.7 400 576L400 300.7z" />
+            </svg>
+            `
+        }),
+    },
 };
 
+// Main functions
+
+// Main entry function
 async function main() {
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(elements.map.map);
+    elements.map.airportsLayer.addTo(elements.map.map);
+
     // Initially insert elements
     // Add two player inputs by default to the game create form
     addPlayerInput();
@@ -99,6 +138,14 @@ async function main() {
     }
 
     await openGame(gameId);
+}
+
+async function fetchAirports() {
+    // set appState.airports
+    await fetch(`${appState.backendBaseUrl}/player/${appState.playerTurn.id}/airports`).then(async (req) => {
+        appState.airports = await req.json();
+        console.log(appState.airports);
+    });
 }
 
 function selectGameInList(e) {
@@ -164,19 +211,16 @@ async function switchMove(initial) {
         appState.gameInfo.current_round = res[0].round;
         appState.playerTurn.id = res[0].player_turn;
     });
+    await fetchAirports();
 
     // Display data from app state in the elements
-    await updateData()
+    await updateData();
     elements.info.moves.innerHTML = `${appState.playerTurn.movesLeft} moves left`;
-    elements.info.currentRoundNumber.innerHTML = `${appState.gameInfo.current_round}/${appState.gameInfo.max_round}`
+    elements.info.currentRoundNumber.innerHTML = `${appState.gameInfo.current_round}/${appState.gameInfo.max_round}`;
 
     // Show player turn modal
     elements.moveSwitch.name.innerHTML = appState.playerTurn.name;
     elements.moveSwitch.dialog.showModal();
-}
-
-function switchMoveConfirm() {
-    elements.moveSwitch.dialog.close();
 }
 
 async function updateData() {
@@ -192,6 +236,7 @@ async function updateData() {
             appState.playerTurn.name = player.screen_name;
             appState.playerTurn.money = player.balance;
             appState.playerTurn.travelled = player.distance_travelled;
+            appState.playerTurn.location = player.location;
         }
     });
     // Fetch and store player's active effects
@@ -221,7 +266,7 @@ async function updateData() {
 }
 
 // Event listener functions
-// May be used outside of listener functions as well
+// May be called by functions outside of listeners too
 
 function switchToGameCreate() {
     elements.gameSelect.dialog.close();
@@ -231,6 +276,10 @@ function switchToGameCreate() {
 function switchToGameSelect() {
     elements.gameCreate.dialog.close();
     elements.gameSelect.dialog.showModal();
+}
+
+function switchMoveConfirm() {
+    elements.moveSwitch.dialog.close();
 }
 
 function removePlayerInput(e) {
@@ -541,6 +590,30 @@ async function exitGame() {
     await showGameSelect();
 }
 
+// Updates markers whenever a map is moved
+function updateMarkers() {
+    // Get map position
+    const bounds = elements.map.map.getBounds();
+
+    // Delete previous airport markers
+    elements.map.airportMarkers.forEach((marker) => elements.map.airportsLayer.removeLayer(marker));
+    elements.map.airportMarkers = [];
+
+    // Iterate through array of airports fetched in main
+    appState.airports.forEach((airport) => {
+        // Only add markers of airports visible inside boundary
+        if (!bounds.contains([airport.latitude_deg, airport.longitude_deg])) return;
+
+        // Marker style
+        const icon = airport.ident == appState.playerTurn.location ? elements.map.locationMarker : elements.map.airportMarker;
+
+        // Add airport markers to the elements.map.airportsLayer
+        const marker = L.marker([airport.latitude_deg, airport.longitude_deg], { icon });
+        marker.addTo(elements.map.airportsLayer);
+        elements.map.airportMarkers.push(marker);
+    })
+}
+
 // Event listeners
 elements.gameSelect.continueGameBtn.addEventListener("click", () => openGame(elements.gameSelect.gameSelected));
 elements.gameSelect.createNewBtn.addEventListener("click", switchToGameCreate);
@@ -553,7 +626,8 @@ elements.actionButtons.travelBtn.addEventListener("click", openTravelScreen);
 elements.actionButtons.itemBtn.addEventListener("click", openItemsScreen);
 elements.actionButtons.shopBtn.addEventListener("click", openShopScreen);
 elements.actionButtons.endturnBtn.addEventListener("click", endTurn);
-elements.actionButtons.quitBtn.addEventListener("click", exitGame)
+elements.actionButtons.quitBtn.addEventListener("click", exitGame);
+elements.map.map.on('moveend', updateMarkers);
 
 // Main/entry function
 main();
