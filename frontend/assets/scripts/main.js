@@ -20,6 +20,12 @@ const appState = {
         effects: []
     },
     airports: [],
+    selectedAirport: {
+        ident: null,
+        name: null,
+        flightDistance: null,
+        flightPrice: null,
+    },
 };
 
 const elements = {
@@ -53,7 +59,7 @@ const elements = {
     },
     screens: {
         explore: document.querySelector("#explore"),
-        map: document.querySelector("#map"),
+        map: document.querySelector("#map-outer"),
         items: document.querySelector("#items"),
         shop: document.querySelector("#shop"),
     },
@@ -78,13 +84,12 @@ const elements = {
         map: L.map('map').setView([60.867883, 26.704160], 13),
         airportsLayer: L.layerGroup([]),
         airportMarkers: [],
-        airportMarker: L.divIcon({
+        airportMarker: (isSelected) => L.divIcon({
             className: 'custom-icon',
             iconSize: [25, 25],
-            iconAnchor: [25, 25],
             html: `
             <svg width="25" height="25" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-                <path fill="var(--primary-hover-bg)" d="
+                <path fill="${isSelected ? "var(--target-hover-bg)" : "var(--primary-hover-bg)"}" d="
                     M25 6
                     A19 19 0 1 1 25 44
                     A19 19 0 1 1 25 6
@@ -98,19 +103,27 @@ const elements = {
             </svg>
             `
         }),
-        locationMarker: L.divIcon({
+        locationMarker: (isSelected) => L.divIcon({
             className: 'custom-icon',
             iconSize: [60, 60],
-            iconAnchor: [60, 60],
             html: `
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
                 <!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
-                <path fill="var(--primary-hover-bg)"
+                <path fill="${isSelected ? "var(--target-hover-bg)" : "var(--primary-hover-bg)"}"
                     d="M376 88C376 57.1 350.9 32 320 32C289.1 32 264 57.1 264 88C264 118.9 289.1 144 320 144C350.9 144 376 118.9 376 88zM400 300.7L446.3 363.1C456.8 377.3 476.9 380.3 491.1 369.7C505.3 359.1 508.3 339.1 497.7 324.9L427.2 229.9C402 196 362.3 176 320 176C277.7 176 238 196 212.8 229.9L142.3 324.9C131.8 339.1 134.7 359.1 148.9 369.7C163.1 380.3 183.1 377.3 193.7 363.1L240 300.7L240 576C240 593.7 254.3 608 272 608C289.7 608 304 593.7 304 576L304 416C304 407.2 311.2 400 320 400C328.8 400 336 407.2 336 416L336 576C336 593.7 350.3 608 368 608C385.7 608 400 593.7 400 576L400 300.7z" />
             </svg>
             `
         }),
     },
+    selectedAirport: {
+        container: document.querySelector("#selected-airport-information"),
+        ident: document.querySelector("#selected-airport-ident"),
+        name: document.querySelector("#selected-airport-name"),
+        flightDistance: document.querySelector("#selected-airport-flight-distance"),
+        flightPrice: document.querySelector("#selected-airport-flight-price"),
+        travelBtn: document.querySelector("#selected-airport-travel"),
+        noTravel: document.querySelector("#selected-airport-no-travel"),
+    }
 };
 
 // Main functions
@@ -118,7 +131,8 @@ const elements = {
 // Main entry function
 async function main() {
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: 10,
+        minZoom: 5,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(elements.map.map);
     elements.map.airportsLayer.addTo(elements.map.map);
@@ -263,6 +277,25 @@ async function updateData() {
         if (effect.duration === 0) continue;
         elements.info.activeEffectList.innerHTML += `<div>${effect.effect_name} - ${effect.duration > 1 ? effect.duration + ' turns left' : 'Ends this turn'}</div>`
     }
+
+    // Update chosen airport data
+    if(appState.selectedAirport.ident) {
+        elements.selectedAirport.container.style.display = "flex";
+        elements.selectedAirport.ident.innerHTML = appState.selectedAirport.ident;
+        elements.selectedAirport.name.innerHTML = appState.selectedAirport.name;
+        elements.selectedAirport.flightDistance.innerHTML = appState.selectedAirport.flightDistance;
+        elements.selectedAirport.flightPrice.innerHTML = appState.selectedAirport.flightPrice;
+        // Display travel button only if player can travel there
+        if(appState.playerTurn.money >= appState.selectedAirport.flightPrice && appState.playerTurn.location != appState.selectedAirport.ident) {
+            elements.selectedAirport.travelBtn.style.display = "block";
+            elements.selectedAirport.noTravel.style.display = "none";
+        } else {
+            elements.selectedAirport.travelBtn.style.display = "none";
+            elements.selectedAirport.noTravel.style.display = "block";
+        }
+    } else {
+        elements.selectedAirport.container.style.display = "none";
+    }
 }
 
 // Event listener functions
@@ -390,7 +423,7 @@ async function openExploreScreen() {
         const res = await req.json();
 
         if (res.event === "No active event.") {
-            elements.screens.explore.innerHTML = `<button class="explore-button" onclick="eventNextState(1)">Explore</button>`;
+            elements.screens.explore.innerHTML = `<button class="action-button" onclick="eventNextState(1)">Explore</button>`;
             return;
         }
 
@@ -416,7 +449,7 @@ async function eventNextState(choice) {
             return;
         }
         else if (res.event === "final") {
-            elements.screens.explore.innerHTML = `<button class="explore-button" onclick="eventNextState(1)">Explore</button>`;
+            elements.screens.explore.innerHTML = `<button class="action-button" onclick="eventNextState(1)">Explore</button>`;
             return;
         }
 
@@ -446,7 +479,7 @@ async function displayEventState(eventInfo) {
     for (const i in eventInfo.choices) {
         const choice = document.createElement("button");
         choice.innerHTML = eventInfo.choices[i]
-        choice.classList.add("event-button");
+        choice.classList.add("action-button-sm");
         choice.addEventListener("click", () => eventNextState(Number(i)));
 
         event_choices.appendChild(choice);
@@ -601,14 +634,25 @@ function updateMarkers() {
 
     // Iterate through array of airports fetched in main
     appState.airports.forEach((airport) => {
+        const latlng = [airport.latitude_deg, airport.longitude_deg];
         // Only add markers of airports visible inside boundary
-        if (!bounds.contains([airport.latitude_deg, airport.longitude_deg])) return;
+        if (!bounds.contains(latlng)) return;
 
         // Marker style
-        const icon = airport.ident == appState.playerTurn.location ? elements.map.locationMarker : elements.map.airportMarker;
+        const icon = airport.ident == appState.playerTurn.location ? elements.map.locationMarker(appState.selectedAirport.ident == airport.ident) : elements.map.airportMarker(appState.selectedAirport.ident == airport.ident);
 
         // Add airport markers to the elements.map.airportsLayer
-        const marker = L.marker([airport.latitude_deg, airport.longitude_deg], { icon });
+        const marker = L.marker(latlng, { icon }).on('click', (e) => {
+            // Update selected airport data on click
+            appState.selectedAirport = {
+                ident: airport.ident,
+                name: airport.name,
+                flightDistance: airport.distance_km,
+                flightPrice: airport.travel_price,
+            };
+            updateData();
+            updateMarkers();
+        });
         marker.addTo(elements.map.airportsLayer);
         elements.map.airportMarkers.push(marker);
     })
