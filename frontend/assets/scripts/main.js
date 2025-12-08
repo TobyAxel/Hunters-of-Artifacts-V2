@@ -156,7 +156,7 @@ async function main() {
 
 async function fetchAirports() {
     // set appState.airports
-    await fetch(`${appState.backendBaseUrl}/player/${appState.playerTurn.id}/airports`).then(async (req) => {
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/airports`).then(async (req) => {
         appState.airports = await req.json();
         console.log(appState.airports);
     });
@@ -225,6 +225,13 @@ async function switchMove(initial) {
         appState.gameInfo.current_round = res[0].round;
         appState.playerTurn.id = res[0].player_turn;
     });
+    // Deselect airport
+    appState.selectedAirport.ident = null;
+    appState.selectedAirport.name = null;
+    appState.selectedAirport.travelDistance = null;
+    appState.selectedAirport.travelPrice = null;
+
+    // Fetch airports for the appState.airports
     await fetchAirports();
 
     // Display data from app state in the elements
@@ -271,6 +278,7 @@ async function updateData() {
     elements.info.distanceTravelled.innerHTML = appState.playerTurn.travelled + 'km travelled';
     elements.info.moves.innerHTML = appState.playerTurn.movesLeft + ' moves left';
 
+    // Show active effects
     elements.info.activeEffectList.innerHTML = "";
     for (let i in appState.playerTurn.effects) {
         const effect = appState.playerTurn.effects[i];
@@ -286,7 +294,11 @@ async function updateData() {
         elements.selectedAirport.flightDistance.innerHTML = appState.selectedAirport.flightDistance;
         elements.selectedAirport.flightPrice.innerHTML = appState.selectedAirport.flightPrice;
         // Display travel button only if player can travel there
-        if(appState.playerTurn.money >= appState.selectedAirport.flightPrice && appState.playerTurn.location != appState.selectedAirport.ident) {
+        if(
+            appState.playerTurn.money >= appState.selectedAirport.flightPrice &&
+            appState.playerTurn.location != appState.selectedAirport.ident &&
+            appState.playerTurn.movesLeft > 0
+        ) {
             elements.selectedAirport.travelBtn.style.display = "block";
             elements.selectedAirport.noTravel.style.display = "none";
         } else {
@@ -626,7 +638,7 @@ async function exitGame() {
     await showGameSelect();
 }
 
-// Updates markers whenever a map is moved
+// Updates markers whenever a map is moved or the data changed
 function updateMarkers() {
     // Get map position
     const bounds = elements.map.map.getBounds();
@@ -664,11 +676,9 @@ function updateMarkers() {
 // On selected airport travel button click
 async function travel() {
     // Send travel request
-    const req = await fetch(`${appState.backendBaseUrl}/player/${appState.playerTurn.id}/travel?arr_ident=${appState.selectedAirport.ident}`, { method: "POST"});
-    const res = await req.json();
-    console.log(res);
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/travel?arr_ident=${appState.selectedAirport.ident}`, { method: "POST"});
 
-    // Update airport list to also fetch new correct travel prices
+    // Deselect airport
     appState.selectedAirport.ident = null;
     appState.selectedAirport.name = null;
     appState.selectedAirport.travelDistance = null;
