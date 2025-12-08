@@ -114,6 +114,8 @@ const elements = {
             </svg>
             `
         }),
+        routeLayer: L.layerGroup([]),
+        route: null,
     },
     selectedAirport: {
         container: document.querySelector("#selected-airport-information"),
@@ -136,6 +138,7 @@ async function main() {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(elements.map.map);
     elements.map.airportsLayer.addTo(elements.map.map);
+    elements.map.routeLayer.addTo(elements.map.map);
 
     // Initially insert elements
     // Add two player inputs by default to the game create form
@@ -286,6 +289,12 @@ async function updateData() {
         elements.info.activeEffectList.innerHTML += `<div>${effect.effect_name} - ${effect.duration > 1 ? effect.duration + ' turns left' : 'Ends this turn'}</div>`
     }
 
+    // Remove the existing route line
+    if(elements.map.route) {
+        elements.map.routeLayer.removeLayer(elements.map.route);
+        elements.map.route = null;
+    }
+
     // Update chosen airport data
     if(appState.selectedAirport.ident) {
         elements.selectedAirport.container.style.display = "flex";
@@ -305,6 +314,11 @@ async function updateData() {
             elements.selectedAirport.travelBtn.style.display = "none";
             elements.selectedAirport.noTravel.style.display = "block";
         }
+        // Add the route line
+        const startPoint = appState.airports.find((airport) => airport.ident == appState.playerTurn.location);
+        const endPoint = appState.airports.find((airport) => airport.ident == appState.selectedAirport.ident);
+        elements.map.route = L.polyline([[startPoint.latitude_deg, startPoint.longitude_deg], [endPoint.latitude_deg, endPoint.longitude_deg]]);
+        elements.map.route.addTo(elements.map.routeLayer);
     } else {
         elements.selectedAirport.container.style.display = "none";
     }
@@ -643,7 +657,7 @@ function updateMarkers() {
     // Get map position
     const bounds = elements.map.map.getBounds();
 
-    // Delete previous airport markers
+    // Delete previous airport markers and route
     elements.map.airportMarkers.forEach((marker) => elements.map.airportsLayer.removeLayer(marker));
     elements.map.airportMarkers = [];
 
@@ -666,7 +680,6 @@ function updateMarkers() {
                 flightPrice: airport.travel_price,
             };
             updateData();
-            updateMarkers();
         });
         marker.addTo(elements.map.airportsLayer);
         elements.map.airportMarkers.push(marker);
