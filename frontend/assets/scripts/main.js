@@ -314,11 +314,16 @@ async function updateData() {
             elements.selectedAirport.travelBtn.style.display = "none";
             elements.selectedAirport.noTravel.style.display = "block";
         }
-        // Add the route line
-        const startPoint = appState.airports.find((airport) => airport.ident == appState.playerTurn.location);
-        const endPoint = appState.airports.find((airport) => airport.ident == appState.selectedAirport.ident);
-        elements.map.route = L.polyline([[startPoint.latitude_deg, startPoint.longitude_deg], [endPoint.latitude_deg, endPoint.longitude_deg]]);
-        elements.map.route.addTo(elements.map.routeLayer);
+        // Draw the route line if chosen airport is not the same as the player's location
+        if(appState.playerTurn.location != appState.selectedAirport.ident) {
+            // Get full airport data to later know the location
+            const startPoint = appState.airports.find((airport) => airport.ident == appState.playerTurn.location);
+            const endPoint = appState.airports.find((airport) => airport.ident == appState.selectedAirport.ident);
+
+            // Draw a line between two airport points
+            elements.map.route = new L.Geodesic([[startPoint.latitude_deg, startPoint.longitude_deg], [endPoint.latitude_deg, endPoint.longitude_deg]], {color: "#0000b4ff"});
+            elements.map.route.addTo(elements.map.routeLayer);
+        }
     } else {
         elements.selectedAirport.container.style.display = "none";
     }
