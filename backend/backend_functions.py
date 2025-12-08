@@ -30,6 +30,12 @@ def get_player(player_id):
     results = rows_to_dicts(rows)
     return results
 
+def get_current_player(game_id):
+    cursor.execute("SELECT * FROM player INNER JOIN game ON game.player_turn = player.id WHERE game.id = %s", (game_id,))
+    rows = cursor.fetchall()
+    results = rows_to_dicts(rows)
+    return results
+
 def get_event(game_id):
     cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
     rows = cursor.fetchall()

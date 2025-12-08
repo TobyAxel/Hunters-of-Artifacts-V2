@@ -2,7 +2,8 @@
 
 :root {
     --primary-bg: #e6e6ff;
-    --primary-hover-bg: #8080ff;
+    --primary-hover-bg: #000080ff;
+    --target-hover-bg: #0000b4ff;
     --primary-border: #ccccff;
     --primary-font-color: #0d0d0d;
     --secondary-font-color: #404040;
@@ -70,6 +71,7 @@ button {
 
 .primary-button:not(:disabled):hover {
     background: var(--primary-hover-bg);
+    color: var(--primary-bg);
 }
 
 .primary-button:disabled {
@@ -91,11 +93,13 @@ button {
 
 .radio-button-label:hover {
     background-color: var(--primary-hover-bg);
+    color: var(--primary-bg);
     cursor: pointer;
 }
 
 .radio-button-label:has(.radio-button:checked)  {
     background-color: var(--primary-hover-bg);
+    color: var(--primary-bg);
 }
 
 .inputs {
@@ -186,8 +190,25 @@ button {
     flex-grow: 1;
 }
 
-#map {
+#map-outer {
     flex-grow: 1;
+    position: relative;
+}
+
+#selected-airport-information {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    z-index: 900;
+    padding: 12px;
+    /* display: is modified in main.js (and is either flex or none) */
+    flex-direction: column;
+    gap: 12px;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
 }
 
 #explore {
@@ -198,20 +219,21 @@ button {
     justify-content: center;
 }
 
-.explore-button {
+.action-button {
     padding: 16px 32px;
-    background-color: rgb(0, 0, 128);
+    background-color: var(--primary-hover-bg);
     color: white;
     font-size: 24px;
+    text-align: center;
     border-radius: 8px;
 }
 
-.explore-button:hover {
-    background-color: rgb(0, 0, 180);
+.action-button:hover {
+    background-color: var(--target-hover-bg);
 }
 
 .event-container {
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: #000000bf;
     color: white;
     padding: 24px;
     border-radius: 12px;
@@ -230,16 +252,17 @@ button {
     margin-top: 16px;
 }
 
-.event-button {
+.action-button-sm {
     padding: 12px 24px;
-    background-color: rgb(0, 0, 128);
+    background-color: var(--primary-hover-bg);
     color: white;
     font-size: 18px;
+    text-align: center;
     border-radius: 8px;
 }
 
-.event-button:hover {
-    background-color: rgb(0, 0, 180);
+.action-button-sm:hover {
+    background-color: var(--target-hover-bg);
 }
 
 #items {
@@ -256,7 +279,7 @@ button {
 }
 
 #item-grid .item {
-    background-color: rgba(20,20,20,0.3);
+    background-color: #1414144d;
     border: 1px black solid;
     border-radius: 12px;
 }
