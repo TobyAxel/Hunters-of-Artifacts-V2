@@ -270,7 +270,7 @@ def player_travel(game_id):
 
         if request.method == 'POST':
             # Travel to the airport
-            res = travel(game_id, arr_ident, travel_price)
+            travel(game_id, arr_ident, travel_price, distance_km)
             return jsonify({
                 "message": "Player successfully travelled",
                 "distance_km": distance_km,

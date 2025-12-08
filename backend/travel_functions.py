@@ -86,15 +86,15 @@ def fetch_travel_details(game_id, arr_ident):
     results = rows_to_dicts(cursor.fetchall())
     return results
 
-def travel(game_id, arr_ident, travel_price):
+def travel(game_id, arr_ident, travel_price, distance_km):
     # Update player location
     cursor.execute(
         """
         UPDATE player
-        SET player.location = %s, player.balance = player.balance - %s
+        SET player.location = %s, player.balance = player.balance - %s, distance_travelled = distance_travelled + %s
         WHERE id = (SELECT player_turn FROM game WHERE game.id = %s)
         """,
-        (arr_ident, travel_price, game_id)
+        (arr_ident, travel_price, distance_km, game_id)
     )
 
     # Update rounds count
