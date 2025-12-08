@@ -296,6 +296,9 @@ async function updateData() {
     } else {
         elements.selectedAirport.container.style.display = "none";
     }
+
+    // Update markers on the map
+    updateMarkers();
 }
 
 // Event listener functions
@@ -658,6 +661,26 @@ function updateMarkers() {
     })
 }
 
+// On selected airport travel button click
+async function travel() {
+    // Send travel request
+    const req = await fetch(`${appState.backendBaseUrl}/player/${appState.playerTurn.id}/travel?arr_ident=${appState.selectedAirport.ident}`, { method: "POST"});
+    const res = await req.json();
+    console.log(res);
+
+    // Update airport list to also fetch new correct travel prices
+    appState.selectedAirport.ident = null;
+    appState.selectedAirport.name = null;
+    appState.selectedAirport.travelDistance = null;
+    appState.selectedAirport.travelPrice = null;
+
+    // Update airport list to also fetch new correct travel prices
+    await fetchAirports();
+
+    // Update the elements
+    updateData();
+}
+
 // Event listeners
 elements.gameSelect.continueGameBtn.addEventListener("click", () => openGame(elements.gameSelect.gameSelected));
 elements.gameSelect.createNewBtn.addEventListener("click", switchToGameCreate);
@@ -672,6 +695,7 @@ elements.actionButtons.shopBtn.addEventListener("click", openShopScreen);
 elements.actionButtons.endturnBtn.addEventListener("click", endTurn);
 elements.actionButtons.quitBtn.addEventListener("click", exitGame);
 elements.map.map.on('moveend', updateMarkers);
+elements.selectedAirport.travelBtn.addEventListener("click", travel);
 
 // Main/entry function
 main();
