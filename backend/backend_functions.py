@@ -30,6 +30,12 @@ def get_player(player_id):
     results = rows_to_dicts(rows)
     return results
 
+def get_current_player(game_id):
+    cursor.execute("SELECT * FROM player INNER JOIN game ON game.player_turn = player.id WHERE game.id = %s", (game_id,))
+    rows = cursor.fetchall()
+    results = rows_to_dicts(rows)
+    return results
+
 def get_event(game_id):
     cursor.execute("SELECT * FROM game WHERE id = %s", (game_id,))
     rows = cursor.fetchall()
@@ -52,13 +58,34 @@ def get_items(player_id):
     cursor.execute("SELECT * FROM item WHERE player_id = %s", [player_id,])
     rows = cursor.fetchall()
     results = rows_to_dicts(rows)
+
+    for result in results:
+        for item in item_list:
+            if item.name == result['name']:
+                result['description'] = item.description
+                break
+
     return results
 
 def get_active_effects(player_id):
     cursor.execute("SELECT * FROM active_effect WHERE player_id = %s", [player_id,])
     rows = cursor.fetchall()
     results = rows_to_dicts(rows)
+
     return results
+
+def get_game_artifacts(game_id):
+    cursor.execute("SELECT player.screen_name, item.name FROM item INNER JOIN player WHERE player.id = item.player_id AND item.rarity = 'artifact' AND player.game_id = %s", (game_id,))
+    rows = cursor.fetchall()
+    results = rows_to_dicts(rows)
+
+    players = {}
+    for result in results:
+        if result['screen_name'] not in players:
+            players[result['screen_name']] = []
+        players[result['screen_name']].append(result['name'])
+
+    return players
 
 def get_shop_items(game):
     # Check what state shop is in

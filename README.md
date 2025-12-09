@@ -1,6 +1,7 @@
 ## Endpoints
 
 ### GET
+
 - /games/game_id
   - Gets games by id, or all games if no id is given
 - /games/game_id/players
@@ -9,13 +10,14 @@
   - Gets current event's state
 - /shop/game_id
   - Get all items in current game's shop
-- /player/<int:player_id>/airports?max_distance_km=1000
+- /game/[int:game_id](int:player_id)/airports?max_distance_km=1000
   - Lists airports sorted from closest to farthest
   - max_distance_km is an optional parameter, distance is unlimited if not specified
-- /player/<int:player_id>/travel?arr_ident=EETN
+- /game/[int:game_id](int:player_id)/travel?arr_ident=EETN
   - Get travel information
 
 ### POST
+
 - /games
   - Creates new game with provided info, which is to be provided in JSON format, below is example of body content
     ```
@@ -31,7 +33,7 @@
     }
     ```
 - /games/game_id/end-turn
-    - Ends player's turn, and returns next turn's relevant info
+  - Ends player's turn, and returns next turn's relevant info
 - /events/game_id
   - Updates event by running users option, or creates new event if none exists
   - Disallows starting event if no moves are left
@@ -56,15 +58,19 @@
         "item_name": "Item name"
     }
     ```
-- /player/<int:player_id>/travel?arr_ident=EETN
+- /game/[int:player_id](int:player_id)/travel?arr_ident=EETN
   - Travel player an airport
+
 ## Backend endpoint TODO
+
 - Handle items
 - Handle scoring
 - Get player whose turn it is
 
 ## NOTE
+
 - Haven't updated dump yet, run this in mariadb
+
 ```
 ALTER TABLE game ADD archived bool;
 ALTER TABLE game ADD name varchar(255) NOT NULL;

@@ -1,10 +1,9 @@
-from backend.backend_functions import get_player
-from backend.helper_functions import rows_to_dicts, is_ident
+from backend.helper_functions import rows_to_dicts
 from backend.sql_connection import cursor
 
 #---- TRAVEL FUNCTIONS ----#
 
-def list_airports(player_id, max_distance_km):
+def list_airports(game_id, max_distance_km):
     query = """
     SELECT 
         airport.ident,
@@ -31,7 +30,8 @@ def list_airports(player_id, max_distance_km):
             )
         ), 2) AS distance_km
         FROM airport
-        INNER JOIN player ON player.id = %s
+        INNER JOIN game ON game.id = %s
+        INNER JOIN player ON player.id = game.player_turn
         INNER JOIN airport AS current_airport ON player.location = current_airport.ident
     ) AS airport
     WHERE
@@ -41,7 +41,7 @@ def list_airports(player_id, max_distance_km):
     ORDER BY airport.distance_km;
     """
 
-    params = (player_id, max_distance_km, max_distance_km)
+    params = (game_id, max_distance_km, max_distance_km)
 
     cursor.execute(query, params)
 
@@ -57,7 +57,7 @@ def list_airports(player_id, max_distance_km):
 
     return results
 
-def fetch_travel_details(player_id, arr_ident):
+def fetch_travel_details(game_id, arr_ident):
     # Find out if player has enough money to travel
     cursor.execute(
         """                
@@ -80,7 +80,8 @@ def fetch_travel_details(player_id, arr_ident):
                 )
             ), 2) AS distance_km
             FROM airport
-            INNER JOIN player ON player.id = %s
+            INNER JOIN game ON game.id = %s
+            INNER JOIN player ON player.id = game.player_turn
             INNER JOIN airport AS current_airport ON player.location = current_airport.ident
             WHERE airport.ident = %s
         ) AS airport
@@ -89,7 +90,7 @@ def fetch_travel_details(player_id, arr_ident):
             AND airport.type = 'large_airport'
             AND airport.scheduled_service = 'yes';
         """
-        , (player_id, arr_ident, arr_ident))
+        , (game_id, arr_ident, arr_ident))
     results = rows_to_dicts(cursor.fetchall())
 
     # Check if player has discount voucher
@@ -102,12 +103,23 @@ def fetch_travel_details(player_id, arr_ident):
 
     return results
 
-def travel(player_id, arr_ident, travel_price):
+def travel(game_id, arr_ident, travel_price, distance_km):
+    # Update player location
     cursor.execute(
         """
         UPDATE player
-        SET location = %s, balance = balance - %s
+        SET player.location = %s, player.balance = player.balance - %s, distance_travelled = distance_travelled + %s
+        WHERE id = (SELECT player_turn FROM game WHERE game.id = %s)
+        """,
+        (arr_ident, travel_price, distance_km, game_id)
+    )
+
+    # Update rounds count
+    cursor.execute(
+        """
+        UPDATE game
+        SET moves = moves - 1
         WHERE id = %s
         """,
-        (arr_ident, travel_price, player_id)
+        (game_id,)
     )
