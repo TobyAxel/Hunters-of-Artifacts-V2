@@ -194,6 +194,7 @@ def end_player_turn(game_id):
     try:
         result = end_turn(game_id)
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 
     # return new game state
@@ -274,7 +275,7 @@ def player_travel(game_id):
         distance_km = travel_info[0]['distance_km']
 
         # Check if player has moves
-        if player[0]['moves'] == 0:
+        if player[0]['moves'] <= 0:
             return jsonify({'error': "Not enough moves to travel"}), 400
 
         # Compare player's balance and travel price

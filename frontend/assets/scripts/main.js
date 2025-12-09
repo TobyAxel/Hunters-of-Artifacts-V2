@@ -217,12 +217,23 @@ async function openGame(gameId) {
 
 async function switchMove(initial) {
     // Only on game open
+    let game_ended = false;
     if(!initial) {
         await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/end-turn`, { method: "POST" }).then(async (req) => {
             const res = await req.json();
-            console.log(res);
+            if (res.game_ended) {
+                console.log(res);
+                for (const i in res.categories) {
+                    const data = res.categories[i];
+                    window.alert(`${data.category}\n${data.text}`)
+                }
+                await exitGame();
+                game_ended = true;
+            }
         });
     }
+    if (game_ended) return;
+
     await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}`).then(async (req) => {
         const res = await req.json();
         // Save data to app state

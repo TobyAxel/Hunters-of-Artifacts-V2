@@ -144,8 +144,11 @@ def create_new_game(data):
 
 def end_turn(game_id):
     # Get current player turn
-    cursor.execute("SELECT player_turn FROM game WHERE id = %s", (game_id,))
-    current_player_id = cursor.fetchone()[0]
+    cursor.execute("SELECT player_turn, round, max_round FROM game WHERE id = %s", (game_id,))
+    result = cursor.fetchone()
+    current_player_id = result[0]
+    current_round = result[1]
+    max_round = result[2]
 
     lower_effects(current_player_id)
 
@@ -160,7 +163,11 @@ def end_turn(game_id):
 
     # Check if we completed a round
     round_passed = 1 if next_index == 0 else 0
-
+    
+    # Check if game is over
+    if round_passed and current_round >= max_round:
+        return end_game(game_id)
+      
     #Check if player has gambler's lucky coin
     moves = 2
     cursor.execute("SELECT effect_name FROM active_effect WHERE player_id = %s", (next_player_id,))
@@ -197,6 +204,67 @@ def end_turn(game_id):
     game = get_games(game_id)
 
     return game
+
+def end_game(game_id):
+    players = get_players(game_id)
+
+    # Money, distance, artifacts
+    most_money_player = most_travelled_player = most_artifacts_player = most_points_player = ""
+    most_money = most_travelled = most_artifacts = most_points = -1
+    for player in players:
+        if player['balance'] > most_money:
+            most_money = player['balance']
+            most_money_player = player['screen_name']
+
+        if player['distance_travelled'] > most_travelled:
+            most_travelled = player['distance_travelled']
+            most_travelled_player = player['screen_name']
+
+        cursor.execute("SELECT COUNT(*) FROM item WHERE player_id = %s AND rarity = 'artifact' GROUP BY player_id", (player['id'],))
+        artifacts = cursor.fetchone()
+
+        if artifacts is None:
+            artifacts = 0
+        else:
+            artifacts = artifacts[0]
+
+        if artifacts > most_artifacts:
+            most_artifacts = artifacts
+            most_artifacts_player = player['screen_name']
+
+    # Count total points
+    for player in players:
+        points = 0
+        for winner in [most_money_player, most_travelled_player, most_artifacts_player]:
+            if player['screen_name'] == winner:
+                points += 1
+
+        if points > most_points:
+            most_points = points
+            most_points_player = player['screen_name']
+
+    return {
+        'game_ended': True,
+        'categories': [
+            {
+                'category': 'Money',
+                'text': f'The winner of this category is {most_money_player} with {most_money}€!',
+            },
+            {
+                'category': 'Distance Travelled',
+                'text': f'The winner of this category is {most_travelled_player} with {most_travelled}€!',
+            },
+            {
+                'category': 'Artifacts',
+                'text': f'The winner of this category is {most_artifacts_player} with {most_artifacts}€!',
+            },
+            {
+                'category': 'Total',
+                'text': f'The winner of the game is {most_points_player} with {most_points} points!',
+            },
+        ]
+    }
+
 
 def lower_effects(player_id):
     cursor.execute("SELECT * FROM active_effect WHERE player_id = %s", (player_id,))
@@ -267,7 +335,7 @@ def update_event(data, game_id):
                 break
 
         # Check if player is out of moves
-        if results[0]['moves'] == 0 and move_cost == 1:
+        if results[0]['moves'] <= 0 and move_cost == 1:
             return "Not enough moves to explore more."
 
         # Start new event
