@@ -264,7 +264,7 @@ def end_game(game_id):
             },
             {
                 'category': 'Distance Travelled:',
-                'text': f'The winner of this category is {most_travelled_player} with {most_travelled}€!',
+                'text': f'The winner of this category is {most_travelled_player} with {most_travelled}km!',
             },
             {
                 'category': 'Artifacts:',
