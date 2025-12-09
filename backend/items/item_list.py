@@ -46,14 +46,14 @@ gamblers_lucky_coin = Item(
       gambler_coin_func,
 )
 
-player_locator = Item(
-      'Player Locator',
-      'Reveal the exact location of one person.',
-      True,
-      0,
-      'epic',
-      item_func,
-)
+#player_locator = Item(
+      #'Player Locator',
+      #'Reveal the exact location of one person.',
+      #True,
+      #0,
+      #'epic',
+      #item_func,
+#)
 
 magical_stopwatch = Item(
       'Magical Stopwatch',
@@ -66,9 +66,9 @@ magical_stopwatch = Item(
 
 finnicky_teleporter = Item(
       'Finnicky Teleporter',
-      '75% chance to teleport you to entered location, 25% chance to explode and skip your next turn.',
+      'teleport you to entered location',
       True,
-      0,
+      1,
       'legendary',
       item_func,
 )
@@ -124,7 +124,6 @@ item_list = [
       energy_drink,
       extra_ticket,
       gamblers_lucky_coin,
-      player_locator,
       magical_stopwatch,
       finnicky_teleporter,
       suspicious_package,

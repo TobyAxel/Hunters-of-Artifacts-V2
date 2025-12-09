@@ -181,6 +181,15 @@ def end_turn(game_id):
             moves += 1
             break
 
+    #Check if player has artifacts
+    cursor.execute("SELECT name FROM item WHERE player_id = %s", (next_player_id,))
+    items = rows_to_dicts(cursor.fetchall())
+    for item in items:
+        if item["name"] == "Chrono Locket":
+            moves += 1
+        elif item["name"] == "Vault of Infinite Wealth":
+            cursor.execute("UPDATE player SET balance = balance + 750 WHERE id = %s", (next_player_id,))
+
     # Update game with next player's turn
     cursor.execute("UPDATE game SET player_turn = %s, round = round + %s, moves = %s, event_id = NULL, event_state = NULL WHERE id = %s", (next_player_id, round_passed, moves, game_id))
 
