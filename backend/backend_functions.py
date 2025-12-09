@@ -312,3 +312,13 @@ def buy_item(item_id, shop_items, game):
 
 def steal_artifact(item_id, game_id):
     cursor.execute("UPDATE item SET player_id = (SELECT player_turn FROM game WHERE id = %s) WHERE id = %s", (game_id, item_id))
+
+    # Update rounds count
+    cursor.execute(
+        """
+        UPDATE game
+        SET moves = moves - 1
+        WHERE id = %s
+        """,
+        (game_id,)
+    )
