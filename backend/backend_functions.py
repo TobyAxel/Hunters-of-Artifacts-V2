@@ -191,8 +191,13 @@ def end_game(game_id):
             most_travelled = player['distance_travelled']
             most_travelled_player = player['screen_name']
 
-        cursor.execute("SELECT COALESCE(COUNT(*), 0) FROM item WHERE player_id = %s AND rarity = 'artifact' GROUP BY player_id", (player['id'],))
-        artifacts = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM item WHERE player_id = %s AND rarity = 'artifact' GROUP BY player_id", (player['id'],))
+        artifacts = cursor.fetchone()
+
+        if artifacts is None:
+            artifacts = 0
+        else:
+            artifacts = artifacts[0]
 
         if artifacts > most_artifacts:
             most_artifacts = artifacts
@@ -201,8 +206,8 @@ def end_game(game_id):
     # Count total points
     for player in players:
         points = 0
-        for i in [most_money_player, most_travelled_player, most_artifacts_player]:
-            if player['screen_name'] == i:
+        for winner in [most_money_player, most_travelled_player, most_artifacts_player]:
+            if player['screen_name'] == winner:
                 points += 1
 
         if points > most_points:
@@ -211,28 +216,24 @@ def end_game(game_id):
 
     return {
         'game_ended': True,
-        'categories': {
-            'Money': {
-                'winner': most_money_player,
-                'amount': most_money,
-                'end_string': '€!'
+        'categories': [
+            {
+                'category': 'Money',
+                'text': f'The winner of this category is {most_money_player} with {most_money}€!',
             },
-            'Distance': {
-                'winner': most_travelled_player,
-                'amount': most_travelled,
-                'end_string': 'km!'
+            {
+                'category': 'Distance Travelled',
+                'text': f'The winner of this category is {most_travelled_player} with {most_travelled}€!',
             },
-            'Artifacts': {
-                'winner': most_artifacts_player,
-                'amount': most_artifacts,
-                'end_string': ' artifacts!'
+            {
+                'category': 'Artifacts',
+                'text': f'The winner of this category is {most_artifacts_player} with {most_artifacts}€!',
             },
-            'Total': {
-                'winner': most_points_player,
-                'amount': most_points,
-                'end_string': ' points!'
-            }
-        }
+            {
+                'category': 'Total',
+                'text': f'The winner of the game is {most_points_player} with {most_points} points!',
+            },
+        ]
     }
 
 

@@ -223,9 +223,9 @@ async function switchMove(initial) {
             const res = await req.json();
             if (res.game_ended) {
                 console.log(res);
-                for (const category in res.categories) {
-                    const data = res.categories[category];
-                    window.alert(`${category}\nThe winner of this category is ${data.winner} with ${data.amount} ${data.end_text}`)
+                for (const i in res.categories) {
+                    const data = res.categories[i];
+                    window.alert(`${data.category}\n${data.text}`)
                 }
                 await exitGame();
                 game_ended = true;
