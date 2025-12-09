@@ -3,9 +3,9 @@ from backend.items.item_functions import *
 
 hidden_terminal_pass = Item(
       'Hidden Terminal Pass',
-      'Explore once without losing moves.',
-      False,
-      0,
+      'Explore once without losing moves, this turn.',
+      True,
+      1,
       'common',
       item_func,
 )
@@ -16,7 +16,7 @@ energy_drink = Item(
       True,
       0,
       'common',
-      item_func,
+      energy_drink_func,
 )
 
 discount_voucher = Item(
@@ -30,30 +30,30 @@ discount_voucher = Item(
 
 extra_ticket = Item(
       'Extra Ticket',
-      'Allows a flight under 1000km to be taken for free.',
-      False,
-      0,
+      'Allows a flight under 1000km to be taken for free, this  turn.',
+      True,
+      1,
       'rare',
       item_func,
 )
 
 gamblers_lucky_coin = Item(
       "Gambler's Lucky Coin",
-      '50% chance to give +1 moves for 3 turns, 50% chance for -1 moves for 2 turns.\nMultiple uses adds to duration.',
+      '50% chance to give +1 moves for 3 turns, 50% chance for -1 moves for 2 turns. Multiple uses adds to duration.',
       True,
       0,
       'rare',
-      item_func,
+      gambler_coin_func,
 )
 
-player_locator = Item(
-      'Player Locator',
-      'Reveal the exact location of one person.',
-      True,
-      0,
-      'epic',
-      item_func,
-)
+#player_locator = Item(
+      #'Player Locator',
+      #'Reveal the exact location of one person.',
+      #True,
+      #0,
+      #'epic',
+      #item_func,
+#)
 
 magical_stopwatch = Item(
       'Magical Stopwatch',
@@ -61,14 +61,14 @@ magical_stopwatch = Item(
       True,
       2,
       'epic',
-      item_func,
+      magical_stopwatch_func,
 )
 
 finnicky_teleporter = Item(
       'Finnicky Teleporter',
-      '75% chance to teleport you to entered location, 25% chance to explode andskip your next turn.',
+      'teleport you to entered location',
       True,
-      0,
+      1,
       'legendary',
       item_func,
 )
@@ -124,7 +124,6 @@ item_list = [
       energy_drink,
       extra_ticket,
       gamblers_lucky_coin,
-      player_locator,
       magical_stopwatch,
       finnicky_teleporter,
       suspicious_package,

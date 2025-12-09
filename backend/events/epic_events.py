@@ -17,8 +17,8 @@ auction_event = Event([
 ])
 
 terminal_of_faces_event = Event([
-    State("You pass by an old terminal displaying flight data and traveller information. Investigate the terminal?", [
-        Choice("Yes", add_item_money, [player_locator, 50, 5], 2),
+    State("You pass by an old warehouse. Do you want to investigate?", [
+        Choice("Yes", add_item_money, [finnicky_teleporter, 50, 5], 2),
         Choice("No", None, None, 1),
     ]),
     State("You decide to just walk away.", [

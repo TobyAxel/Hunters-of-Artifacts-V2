@@ -4,6 +4,9 @@ from backend.events.epic_events import *
 from backend.events.legendary_events import *
 import random
 
+from backend.helper_functions import rows_to_dicts
+
+
 def event_handler(game_id):
     #Default chances
     common = 55
@@ -23,9 +26,9 @@ def event_handler(game_id):
 
     #Check if prism of possibilities is active
     cursor.execute("SELECT effect_name FROM active_effect WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
-    active_effects = cursor.fetchall()
+    active_effects = rows_to_dicts(cursor.fetchall())
     for effect in active_effects:
-        if effect[0] == "prism_of_possibilities":
+        if effect["effect_name"] == "Magical Stopwatch":
             modifier += 3
 
     #Roll cap based on distance travelled
@@ -37,9 +40,6 @@ def event_handler(game_id):
         max_roll = 91
     else:
         max_roll = 100
-
-    #Check if player has hidden terminal pass
-    #WIP
 
     #Roll for event rarity
     roll = 0
