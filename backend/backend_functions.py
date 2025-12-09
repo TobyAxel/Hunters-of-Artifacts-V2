@@ -134,8 +134,28 @@ def end_turn(game_id):
     # Check if we completed a round
     round_passed = 1 if next_index == 0 else 0
 
+    #Check if player has gambler's lucky coin
+    moves = 2
+    cursor.execute("SELECT effect_name FROM active_effect WHERE player_id = %s", (next_player_id,))
+    active_effects = rows_to_dicts(cursor.fetchall())
+    for effect in active_effects:
+        if effect["effect_name"] == "Gambler's Lucky Coin Success":
+            moves += 1
+            break
+        elif effect["effect_name"] == "Gambler's Lucky Coin Fail":
+            moves -= 1
+            break
+
+    #Check if player has magical stopwatch
+    cursor.execute("SELECT effect_name FROM active_effect WHERE player_id = %s", (next_player_id,))
+    active_effects = rows_to_dicts(cursor.fetchall())
+    for effect in active_effects:
+        if effect["effect_name"] == "Magical Stopwatch":
+            moves += 1
+            break
+
     # Update game with next player's turn
-    cursor.execute("UPDATE game SET player_turn = %s, round = round + %s, moves = 2, event_id = NULL, event_state = NULL WHERE id = %s", (next_player_id, round_passed, game_id))
+    cursor.execute("UPDATE game SET player_turn = %s, round = round + %s, moves = %s, event_id = NULL, event_state = NULL WHERE id = %s", (next_player_id, round_passed, moves, game_id))
 
     # Return updated game state
     game = get_games(game_id)
@@ -179,7 +199,8 @@ def use_player_item(item_name, game_id):
             cursor.execute("DELETE FROM item WHERE id = %s", (item_id[0],))
 
             # Add item to active effects
-            cursor.execute("INSERT INTO active_effect (effect_name, player_id, duration) VALUES (%s, %s, %s)", (item.name, current_player, item.duration))
+            if item.name != "Gambler's Lucky Coin" and item.name != "Magical Stopwatch":
+                cursor.execute("INSERT INTO active_effect (effect_name, player_id, duration) VALUES (%s, %s, %s)", (item.name, current_player, item.duration))
 
             result = item.perform_func(game_id)
             break
@@ -197,13 +218,25 @@ def update_event(data, game_id):
 
     # Check if there is an active event
     if results[0]['event_id'] is None:
+
+        #Check if player has hidden terminal pass
+        move_cost = 1
+        cursor.execute("SELECT effect_name FROM active_effect WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)",(game_id,))
+        rows = cursor.fetchall()
+        active_effects = rows_to_dicts(rows)
+        for effect in active_effects:
+            if effect["effect_name"] == "Hidden Terminal Pass":
+                move_cost = 0
+                cursor.execute("DELETE FROM active_effect WHERE effect_name = %s", (effect["effect_name"],))
+                break
+
         # Check if player is out of moves
-        if results[0]['moves'] == 0:
+        if results[0]['moves'] == 0 and move_cost == 1:
             return "Not enough moves to explore more."
 
         # Start new event
         event_id = event_handler(game_id)
-        cursor.execute("UPDATE game SET event_id = %s, event_state = 0, moves = moves - 1 WHERE id = %s", (event_id, game_id,))
+        cursor.execute("UPDATE game SET event_id = %s, event_state = 0, moves = moves - %s WHERE id = %s", (event_id, move_cost, game_id,))
         
         # Get event and choices
         event = event_list[event_id]

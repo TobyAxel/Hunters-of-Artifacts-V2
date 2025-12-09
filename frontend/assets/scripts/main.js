@@ -449,6 +449,7 @@ async function useItem(item, element) {
             },
         }).then(async (req) => {
             const res = await req.json();
+            console.log(res)
             if (res.message !== "Item is not usable.") {
                 updateData();
                 element.parentNode.removeChild(element);

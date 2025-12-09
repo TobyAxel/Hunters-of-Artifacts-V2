@@ -92,6 +92,7 @@ def suspicious_individual_event_func(item, chance1, chance2, game_id):
         owned_items = cursor.fetchall()
         for items in owned_items:
             if items[1] == "Suspicious Package": # SQL returns tuple, not dict
+                cursor.execute("DELETE FROM item WHERE name = %s AND player_id = (SELECT player_turn FROM game WHERE id = %s) LIMIT 1", ("Suspicious Package", game_id))
                 #Get all artifacts
                 artifacts = []
                 for item2 in item_list:

@@ -47,6 +47,14 @@ def list_airports(player_id, max_distance_km):
 
     results = rows_to_dicts(cursor.fetchall())
 
+    # Check if player has discount voucher
+    cursor.execute("SELECT effect_name FROM active_effect WHERE player_id = %s", (player_id,))
+    active_effects = rows_to_dicts(cursor.fetchall())
+    for effect in active_effects:
+        if effect["effect_name"] == "Discount Voucher":
+            for result in results:
+                result["travel_price"] = result["travel_price"] * 0.80
+
     return results
 
 def fetch_travel_details(player_id, arr_ident):
@@ -83,6 +91,15 @@ def fetch_travel_details(player_id, arr_ident):
         """
         , (player_id, arr_ident, arr_ident))
     results = rows_to_dicts(cursor.fetchall())
+
+    # Check if player has discount voucher
+    cursor.execute("SELECT effect_name FROM active_effect WHERE player_id = %s", (player_id,))
+    active_effects = rows_to_dicts(cursor.fetchall())
+    for effect in active_effects:
+        if effect["effect_name"] == "Discount Voucher":
+            for result in results:
+                result["travel_price"] = result["travel_price"] * 0.80
+
     return results
 
 def travel(player_id, arr_ident, travel_price):

@@ -38,9 +38,6 @@ def event_handler(game_id):
     else:
         max_roll = 100
 
-    #Check if player has hidden terminal pass
-    #WIP
-
     #Roll for event rarity
     roll = 0
     for i in range(0, int(modifier)):
