@@ -247,19 +247,23 @@ def end_game(game_id):
         'game_ended': True,
         'categories': [
             {
-                'category': 'Money',
+                'category': 'Game Over',
+                'text': 'Game over! Let\'s see who wins!'
+            },
+            {
+                'category': 'Money:',
                 'text': f'The winner of this category is {most_money_player} with {most_money}€!',
             },
             {
-                'category': 'Distance Travelled',
+                'category': 'Distance Travelled:',
                 'text': f'The winner of this category is {most_travelled_player} with {most_travelled}€!',
             },
             {
-                'category': 'Artifacts',
-                'text': f'The winner of this category is {most_artifacts_player} with {most_artifacts}€!',
+                'category': 'Artifacts:',
+                'text': f'The winner of this category is {most_artifacts_player} with {most_artifacts} artifacts!',
             },
             {
-                'category': 'Total',
+                'category': 'Total:',
                 'text': f'The winner of the game is {most_points_player} with {most_points} points!',
             },
         ]
