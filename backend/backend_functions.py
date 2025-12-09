@@ -120,15 +120,24 @@ def get_shop_items(game):
 
     return items
 
+# Return stealable artifacts
+# only of players, located at the same airports
 def get_stealable_artifacts(item_id, game_id):
     cursor.execute("""
-        SELECT *
+        SELECT
+            item.name,
+            item.id,
+            item.player_id,
+            item_player.screen_name
         FROM item
-        INNER JOIN player ON player.id = item.player_id
-        INNER JOIN game ON game.id = player.game_id
-        INNER JOIN airport ON airport.ident = player.location
-        WHERE (%s IS NULL OR item.id = %s) AND game.id = %s
-    """, (item_id, item_id, game_id,))
+            INNER JOIN player AS item_player ON item_player.id = item.player_id
+            INNER JOIN game ON game.id = %s
+            INNER JOIN player AS current_player ON current_player.id = game.player_turn
+        WHERE (%s IS NULL OR item.id = %s)
+            AND item_player.id != game.player_turn
+            AND item_player.game_id = %s
+            AND item_player.location = current_player.location
+    """, (game_id, item_id, item_id, game_id))
     results = rows_to_dicts(cursor.fetchall())
     return results
 
