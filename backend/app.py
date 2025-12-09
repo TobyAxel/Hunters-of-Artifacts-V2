@@ -199,6 +199,7 @@ def end_player_turn(game_id):
     # return new game state
     return jsonify(result), 200
 
+# Endpoint to get a player's items
 @app.route('/player/items/<int:player_id>', methods=['GET'])
 def player_items(player_id):
     try:
@@ -207,6 +208,7 @@ def player_items(player_id):
         return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
 
+# Endpoint to get a player's active effects
 @app.route('/player/active-effects/<int:player_id>', methods=['GET'])
 def player_active_effects(player_id):
     try:
@@ -215,6 +217,17 @@ def player_active_effects(player_id):
         return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
 
+# Endpoint to get all artifacts owned in game
+@app.route('/games/<int:game_id>/artifacts', methods=['GET'])
+def get_artifacts(game_id):
+    try:
+        result = get_game_artifacts(game_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify(result), 200
+
+# Endpoint to get airports, optionally within certain range
 @app.route('/games/<int:game_id>/airports', methods=['GET'])
 def player_find_airports(game_id):
     try:
