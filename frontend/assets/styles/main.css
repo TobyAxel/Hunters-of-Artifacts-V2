@@ -374,6 +374,35 @@ button {
     padding: 12px;
 }
 
+.artifacts-of {
+    width: 100%;
+    padding: 8px 0;
+    font-weight: bold;
+}
+
+.artifacts-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.artifact {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+}
+
+.artifact-name {
+    display: block;
+    flex-grow: 1;
+}
+
+.steal-button {
+    display: block;
+    grow: 1;
+}
+
 #active-effects {
     flex-grow: 1;
     padding: 12px;

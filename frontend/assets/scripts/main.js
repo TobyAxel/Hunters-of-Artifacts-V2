@@ -21,6 +21,7 @@ const appState = {
         effects: []
     },
     airports: [],
+    players: [],
     selectedAirport: {
         ident: null,
         name: null,
@@ -265,8 +266,17 @@ async function updateData() {
     await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/players`).then(async (req) => {
         const res = await req.json();
 
+        // Reset players array
+        appState.players = [];
         for (let i in res) {
             const player = res[i];
+
+            // Object to store in appState.players
+            const newPlayer = {
+                id: player.id,
+                name: player.screen_name,
+            };
+            appState.players.push(newPlayer);
 
             if (player.id !== appState.playerTurn.id) continue
 
@@ -309,12 +319,35 @@ async function updateData() {
 
     // Show artifacts
     elements.info.artifactsList.innerHTML = "";
-    if (Object.keys(appState.gameInfo.artifacts).length == 0) elements.info.artifactsList.innerHTML = 'Nobody owns any artifacts yet.';
-    for (let i in appState.gameInfo.artifacts) {
-        const player = appState.gameInfo.artifacts[i];
-        elements.info.artifactsList.innerHTML += `<div>${i}</div>`;
-        for (const j in appState.gameInfo.artifacts[i]) {
-            elements.info.artifactsList.innerHTML += `<div>- ${appState.gameInfo.artifacts[i][j]}</div>`
+    if (appState.gameInfo.artifacts.length == 0) elements.info.artifactsList.innerHTML = 'Nobody owns any artifacts yet.';
+    for (const player of appState.players) {
+        const title = createElement("div", { className: "artifacts-of" });
+        title.textContent = `${player.name}'s Artifacts:`;
+        elements.info.artifactsList.appendChild(title);
+
+        // Filter artifacts for player
+        const userArtifacts = appState.gameInfo.artifacts.filter(
+            artifact => artifact.player_id == player.id
+        );
+
+        for (const artifact of userArtifacts) {
+            const artifactDiv = createElement("div", { className: "artifact" });
+
+            const nameSpan = createElement("span", { className: "artifact-name" });
+            nameSpan.textContent = artifact.name;
+            artifactDiv.appendChild(nameSpan);
+
+            // If the artifact can be stolen (players at the same airport)
+            if (artifact.stealable == 1) {
+                const stealBtn = createElement("button", {
+                    className: "action-button-sm steal-button"
+                });
+                stealBtn.textContent = "Steal";
+                stealBtn.addEventListener("click", () => stealArtifact(artifact.id));
+                artifactDiv.appendChild(stealBtn);
+            }
+
+            elements.info.artifactsList.appendChild(artifactDiv);
         }
     }
 
@@ -742,6 +775,11 @@ async function travel() {
     await fetchAirports();
 
     // Update the elements
+    updateData();
+}
+
+async function stealArtifact(itemId) {
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/artifacts/${itemId}/steal`, { method: "POST"});
     updateData();
 }
 
