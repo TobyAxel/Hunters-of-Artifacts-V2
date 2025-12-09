@@ -9,6 +9,7 @@ const appState = {
     gameInfo: {
         max_round: null,
         current_round: null,
+        artifacts: []
     },
     playerTurn: {
         id: 0,
@@ -36,7 +37,8 @@ const elements = {
         distanceTravelled: document.querySelector("#distance-travelled-info"),
         currentRoundNumber: document.querySelector("#current-round-number"),
         currentRoundList: document.querySelector("#current-round-list"),
-        activeEffectList: document.querySelector('#active-effects-list')
+        activeEffectList: document.querySelector('#active-effects-list'),
+        artifactsList: document.querySelector('#artifacts-list')
     },
     gameSelect: {
         dialog: document.querySelector("dialog#game-select-modal"),
@@ -274,6 +276,11 @@ async function updateData() {
         // Save data to app state
         appState.playerTurn.movesLeft = res[0].moves;
     });
+    // Fetch and store all artifacts
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/artifacts`).then(async (req) => {
+        // Save data to app state
+        appState.gameInfo.artifacts = await req.json();
+    });
 
     // Update html elements
     elements.info.player.innerHTML = appState.playerTurn.name;
@@ -287,6 +294,16 @@ async function updateData() {
         const effect = appState.playerTurn.effects[i];
         if (effect.duration === 0) continue;
         elements.info.activeEffectList.innerHTML += `<div>${effect.effect_name} - ${effect.duration > 1 ? effect.duration + ' turns left' : 'Ends this turn'}</div>`
+    }
+
+    // Show artifacts
+    elements.info.artifactsList.innerHTML = "";
+    for (let i in appState.gameInfo.artifacts) {
+        const player = appState.gameInfo.artifacts[i];
+        elements.info.artifactsList.innerHTML += `<div>${i}</div>`;
+        for (const j in appState.gameInfo.artifacts[i]) {
+            elements.info.artifactsList.innerHTML += `<div>- ${appState.gameInfo.artifacts[i][j]}</div>`
+        }
     }
 
     // Remove the existing route line
