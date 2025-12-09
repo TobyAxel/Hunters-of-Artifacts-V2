@@ -298,6 +298,7 @@ async function updateData() {
 
     // Show artifacts
     elements.info.artifactsList.innerHTML = "";
+    if (Object.keys(appState.gameInfo.artifacts).length == 0) elements.info.artifactsList.innerHTML = 'Nobody owns any artifacts yet.';
     for (let i in appState.gameInfo.artifacts) {
         const player = appState.gameInfo.artifacts[i];
         elements.info.artifactsList.innerHTML += `<div>${i}</div>`;
