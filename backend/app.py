@@ -227,6 +227,29 @@ def get_artifacts(game_id):
 
     return jsonify(result), 200
 
+@app.route('/games/<int:game_id>/artifacts/<int:item_id>/steal', methods=['POST'])
+def steal_artifacts(game_id, item_id):
+    try:
+        # Check if a stealable artifact exists
+        stealable_artifacts_list = get_stealable_artifacts(item_id, game_id)
+        if len(stealable_artifacts_list) == 0:
+            return jsonify({'error': 'Artifact not found'}), 404
+
+        steal_artifact(item_id, game_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({"message": "success"}), 200
+
+@app.route('/games/<int:game_id>/artifacts/stealable', methods=['GET'])
+def stealable_artifacts(game_id):
+    try:
+        result = get_stealable_artifacts(None, game_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify(result), 200
+
 # Endpoint to get airports, optionally within certain range
 @app.route('/games/<int:game_id>/airports', methods=['GET'])
 def player_find_airports(game_id):

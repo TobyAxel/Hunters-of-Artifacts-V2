@@ -59,6 +59,7 @@ def get_items(player_id):
     rows = cursor.fetchall()
     results = rows_to_dicts(rows)
 
+    # Additionally return item descriptions
     for result in results:
         for item in item_list:
             if item.name == result['name']:
@@ -79,6 +80,8 @@ def get_game_artifacts(game_id):
     rows = cursor.fetchall()
     results = rows_to_dicts(rows)
 
+    # Players is an object.
+    # Object's keys are player names, which contain items
     players = {}
     for result in results:
         if result['screen_name'] not in players:
@@ -116,6 +119,18 @@ def get_shop_items(game):
             i += 1
 
     return items
+
+def get_stealable_artifacts(item_id, game_id):
+    cursor.execute("""
+        SELECT *
+        FROM item
+        INNER JOIN player ON player.id = item.player_id
+        INNER JOIN game ON game.id = player.game_id
+        INNER JOIN airport ON airport.ident = player.location
+        WHERE (%s IS NULL OR item.id = %s) AND game.id = %s
+    """, (item_id, item_id, game_id,))
+    results = rows_to_dicts(cursor.fetchall())
+    return results
 
 #---- POST ----#
 
@@ -285,3 +300,6 @@ def buy_item(item_id, shop_items, game):
     cursor.execute("INSERT INTO item VALUES (DEFAULT, %s, %s, %s)", (item_to_buy['name'], game['player_turn'], item_to_buy['rarity']))
     print('bought item')
     return 'successfully bought item'
+
+def steal_artifact(item_id, game_id):
+    cursor.execute("UPDATE item SET player_id = (SELECT player_turn FROM game WHERE id = %s) WHERE id = %s", (game_id, item_id))
