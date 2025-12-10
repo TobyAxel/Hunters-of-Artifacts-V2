@@ -230,16 +230,40 @@ def end_player_turn(game_id):
     # return new game state
     return jsonify(result), 200
 
-# Endpoint to get all artifacts owned in game
 @app.route('/games/<int:game_id>/artifacts', methods=['GET'])
 def get_artifacts(game_id):
     try:
-        result = get_game_artifacts(game_id)
+        result = fetch_artifacts(None, game_id)
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
 
     return jsonify(result), 200
+  
+@app.route('/games/<int:game_id>/artifacts/<int:item_id>/steal', methods=['POST'])
+def steal_artifacts(game_id, item_id):
+    try:
+        # Fetch player by the given id
+        player: list[dict[Any, Any]] = get_current_player(game_id)
+        # Check if user exists
+        if len(player) == 0:
+            return jsonify({'error': "No player with given id found"}), 404
+
+        # Check if player has moves
+        if player[0]['moves'] <= 0:
+            return jsonify({'error': "Not enough moves to travel"}), 400
+
+        # Select only stealable artifacts
+        stealable_artifacts_list = [artifact for artifact in fetch_artifacts(item_id, game_id) if artifact["stealable"] == 1]
+        # Check if a stealable artifact exists
+        if len(stealable_artifacts_list) == 0:
+            return jsonify({'error': 'Artifact not found'}), 404
+
+        steal_artifact(item_id, game_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({"message": "success"}), 200
 
 # Endpoint to get airports, optionally within certain range
 @app.route('/games/<int:game_id>/airports', methods=['GET'])

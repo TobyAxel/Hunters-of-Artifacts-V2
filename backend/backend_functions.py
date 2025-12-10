@@ -53,6 +53,7 @@ def get_items(game_id):
     rows = cursor.fetchall()
     results = rows_to_dicts(rows)
 
+    # Additionally return item descriptions
     for result in results:
         for item in item_list:
             if item.name == result['name']:
@@ -67,19 +68,6 @@ def get_active_effects(game_id):
     results = rows_to_dicts(rows)
 
     return results
-
-def get_game_artifacts(game_id):
-    cursor.execute("SELECT player.screen_name, item.name FROM item INNER JOIN player WHERE player.id = item.player_id AND item.rarity = 'artifact' AND player.game_id = %s", (game_id,))
-    rows = cursor.fetchall()
-    results = rows_to_dicts(rows)
-
-    players = {}
-    for result in results:
-        if result['screen_name'] not in players:
-            players[result['screen_name']] = []
-        players[result['screen_name']].append(result['name'])
-
-    return players
 
 def get_shop_items(game):
     # Check what state shop is in
@@ -110,6 +98,26 @@ def get_shop_items(game):
             i += 1
 
     return items
+
+# Return artifacts
+# stealable only if player, located at the same airport
+def fetch_artifacts(item_id, game_id):
+    cursor.execute("""
+        SELECT
+            item.name,
+            item.id,
+            item.player_id,
+            item_player.screen_name,
+            IF(item_player.id != game.player_turn AND item_player.location = current_player.location, TRUE, FALSE) AS stealable
+        FROM item
+            INNER JOIN player AS item_player ON item_player.id = item.player_id
+            INNER JOIN game ON game.id = %s
+            INNER JOIN player AS current_player ON current_player.id = game.player_turn
+        WHERE (%s IS NULL OR item.id = %s)
+            AND item_player.game_id = %s
+    """, (game_id, item_id, item_id, game_id))
+    results = rows_to_dicts(cursor.fetchall())
+    return results
 
 #---- POST ----#
 
@@ -250,7 +258,7 @@ def end_game(game_id):
             },
             {
                 'category': 'Distance Travelled:',
-                'text': f'The winner of this category is {most_travelled_player} with {most_travelled}€!',
+                'text': f'The winner of this category is {most_travelled_player} with {most_travelled}km!',
             },
             {
                 'category': 'Artifacts:',
@@ -393,3 +401,16 @@ def buy_item(item_id, shop_items, game):
     cursor.execute("INSERT INTO item VALUES (DEFAULT, %s, %s, %s)", (item_to_buy['name'], game['player_turn'], item_to_buy['rarity']))
     print('bought item')
     return 'successfully bought item'
+
+def steal_artifact(item_id, game_id):
+    cursor.execute("UPDATE item SET player_id = (SELECT player_turn FROM game WHERE id = %s) WHERE id = %s", (game_id, item_id))
+
+    # Update rounds count
+    cursor.execute(
+        """
+        UPDATE game
+        SET moves = moves - 1
+        WHERE id = %s
+        """,
+        (game_id,)
+    )
