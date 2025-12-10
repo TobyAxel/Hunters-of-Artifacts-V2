@@ -9,6 +9,8 @@ from travel_functions import *
 app = Flask(__name__)
 CORS(app)
 
+# GAME DATA RELATED ENDPOINTS
+
 # Endpoint to fetch all games or create a new game
 @app.route('/games', methods=['GET', 'POST'])
 def handle_games():
@@ -18,6 +20,7 @@ def handle_games():
         try:
             games = get_games()
         except Exception as e:
+            print(e)
             return jsonify({'error': str(e)}), 500
 
         # check if existing games are found
@@ -42,6 +45,7 @@ def handle_games():
         try:
             new_game_id = create_new_game(data)
         except Exception as e:
+            print(e)
             return jsonify({'error': str(e)}), 500
 
         # return success message
@@ -56,6 +60,7 @@ def fetch_game(game_id):
     try:
         game = get_games(game_id)
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 
     # check if game exists
@@ -64,6 +69,8 @@ def fetch_game(game_id):
     
     # return game if found
     return jsonify(game), 200
+
+# PLAYER RELATED ENDPOINTS
 
 # Endpoint to check players in game
 @app.route('/games/<int:game_id>/players', methods=['GET'])
@@ -75,14 +82,57 @@ def fetch_game_players(game_id):
     if game[1] != 200:
         return game
 
-    # get players for game
-    players = get_players(game_id)
+    try:
+        # get players for game
+        players = get_players(game_id)
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
 
     # return players
     return players, 200
 
+# Endpoint to use item
+@app.route('/games/<int:game_id>/player/items/<string:item_name>/use-item', methods=['POST'])
+def use_item(game_id, item_name):
+    # try to fetch game
+    game = fetch_game(game_id)
+    if game[1] != 200:
+        return game
+
+    # use item
+    try:
+        result = use_player_item(item_name, game_id)
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({'message': result}), 200
+
+# Endpoint to get a player's items
+@app.route('/games/<int:game_id>/player/items', methods=['GET'])
+def player_items(game_id):
+    try:
+        result = get_items(game_id)
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    return jsonify(result), 200
+
+# Endpoint to get a player's active effects
+@app.route('/games/<int:game_id>/player/active-effects', methods=['GET'])
+def player_active_effects(game_id):
+    try:
+        result = get_active_effects(game_id)
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    return jsonify(result), 200
+
+# MISC ENDPOINTS
+
 # Endpoint to get / create event or update event state
-@app.route('/events/<int:game_id>', methods=['GET', 'POST'])
+@app.route('/games/<int:game_id>/event', methods=['GET', 'POST'])
 def handle_events(game_id):
     # try to fetch game
     game = fetch_game(game_id)
@@ -95,6 +145,7 @@ def handle_events(game_id):
         try:
             event = get_event(game_id)
         except Exception as e:
+            print(e)
             return jsonify({'error': str(e)}), 500
 
         # return event state
@@ -115,44 +166,21 @@ def handle_events(game_id):
         try:
             new_event_state = update_event(data, game_id)
         except Exception as e:
+            print(e)
             return jsonify({'error': str(e)}), 500
 
         return jsonify({'event': new_event_state}), 200
 
     return jsonify({'error': 'Invalid request method'}), 405
 
-# Endpoint to use item
-@app.route('/items/<int:game_id>', methods=['POST'])
-def use_item(game_id):
-    # try to fetch game
-    game = fetch_game(game_id)
-    if game[1] != 200:
-        return game
-
-    # check if request is json
-    if not request.is_json:
-        return jsonify({'error': 'Request must be JSON'}), 400
-    
-    # get json data, validate required field
-    data = request.get_json()
-    if data.get('item_name') is None:
-        return jsonify({'error': 'Missing required fields'}), 400
-    
-    # use item
-    try: 
-        result = use_player_item(data['item_name'], game_id)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-    return jsonify({'message': result}), 200
-
 # Endpoint to handle shop functions
-@app.route('/shop/<int:game_id>', methods=['GET', 'POST'])
+@app.route('/games/<int:game_id>/shop', methods=['GET', 'POST'])
 def handle_shop(game_id):
     # try to fetch game
     try:
         game = get_games(game_id)
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 
     # check if game exists
@@ -163,6 +191,7 @@ def handle_shop(game_id):
     try:
         shop_items = get_shop_items(game[0])
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 
     if request.method == 'GET':
@@ -181,6 +210,7 @@ def handle_shop(game_id):
         try:
             result = buy_item(data['item_id'], shop_items, game[0])
         except Exception as e:
+            print(e)
             return jsonify({'error': str(e)}), 500
 
         return jsonify({'message': result}), 200
@@ -200,24 +230,16 @@ def end_player_turn(game_id):
     # return new game state
     return jsonify(result), 200
 
-# Endpoint to get a player's items
-@app.route('/player/items/<int:player_id>', methods=['GET'])
-def player_items(player_id):
+@app.route('/games/<int:game_id>/artifacts', methods=['GET'])
+def get_artifacts(game_id):
     try:
-        result = get_items(player_id)
+        result = fetch_artifacts(None, game_id)
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
-    return jsonify(result), 200
 
-# Endpoint to get a player's active effects
-@app.route('/player/active-effects/<int:player_id>', methods=['GET'])
-def player_active_effects(player_id):
-    try:
-        result = get_active_effects(player_id)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
-
+  
 @app.route('/games/<int:game_id>/artifacts/<int:item_id>/steal', methods=['POST'])
 def steal_artifacts(game_id, item_id):
     try:
@@ -243,15 +265,6 @@ def steal_artifacts(game_id, item_id):
 
     return jsonify({"message": "success"}), 200
 
-@app.route('/games/<int:game_id>/artifacts', methods=['GET'])
-def get_artifacts(game_id):
-    try:
-        result = fetch_artifacts(None, game_id)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    return jsonify(result), 200
-
 # Endpoint to get airports, optionally within certain range
 @app.route('/games/<int:game_id>/airports', methods=['GET'])
 def player_find_airports(game_id):
@@ -267,6 +280,7 @@ def player_find_airports(game_id):
 
         result = list_airports(game_id, max_distance_km)
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
     return jsonify(result), 200
 
@@ -318,6 +332,7 @@ def player_travel(game_id):
             return jsonify(travel_info[0]), 200
 
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 
     return jsonify({'error': 'Invalid request method'}), 405

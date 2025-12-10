@@ -262,7 +262,7 @@ async function switchMove(initial) {
 }
 
 async function updateData() {
-    // Fetch and store user data
+    // Fetch and store user data (using this because no specific endpoint for getting current player's data exists yet)
     await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/players`).then(async (req) => {
         const res = await req.json();
 
@@ -287,7 +287,7 @@ async function updateData() {
         }
     });
     // Fetch and store player's active effects
-    await fetch(`${appState.backendBaseUrl}/player/active-effects/${appState.playerTurn.id}`).then(async (req) => {
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/player/active-effects`).then(async (req) => {
         // Save data to app state
         appState.playerTurn.effects = await req.json();
     });
@@ -515,7 +515,7 @@ function openScreen(screenName) {
 
 async function openExploreScreen() {
     // get current event
-    await fetch(`${appState.backendBaseUrl}/events/${appState.gameId}`, { method:"GET"}).then(async (req) => {
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/event`, { method:"GET"}).then(async (req) => {
         const res = await req.json();
 
         if (res.event === "No active event.") {
@@ -530,7 +530,7 @@ async function openExploreScreen() {
 }
 
 async function eventNextState(choice) {
-    await fetch(`${appState.backendBaseUrl}/events/${appState.gameId}`, {
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/event`, {
         method: "POST",
         body: JSON.stringify({ event_option: choice }),
         headers: {
@@ -593,7 +593,8 @@ async function openTravelScreen() {
 }  
 
 async function openItemsScreen() {
-    await fetch(`${appState.backendBaseUrl}/player/items/${appState.playerTurn.id}`, { method:"GET"}).then(async (req) => {
+    // Get player's items
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/player/items`, { method:"GET"}).then(async (req) => {
         const res = await req.json();
 
         console.log(res);
@@ -618,9 +619,8 @@ async function openItemsScreen() {
 async function useItem(item, element) {
     const confirmUse = window.confirm(`Do you want to use ${item.name}?`);
     if(confirmUse) {
-        await fetch(`${appState.backendBaseUrl}/items/${appState.gameId}`, {
+        await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/player/items/${item.name}/use-item`, {
             method: "POST",
-            body: JSON.stringify({item_name: item.name}),
             headers: {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -645,7 +645,7 @@ async function useItem(item, element) {
 
 async function openShopScreen() {
     // get shop items
-    await fetch(`${appState.backendBaseUrl}/shop/${appState.gameId}`, { method:"GET"}).then(async (req) => {
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/shop`, { method:"GET"}).then(async (req) => {
         // parse items by rarity
         const res = await req.json();
         const items = res.shop;
@@ -701,7 +701,7 @@ async function openShopScreen() {
 }
 
 async function buyItem(itemId) {
-    await fetch(`${appState.backendBaseUrl}/shop/${appState.gameId}`, {
+    await fetch(`${appState.backendBaseUrl}/games/${appState.gameId}/shop`, {
         method: "POST",
         body: JSON.stringify({ item_id: itemId }),
         headers: {
