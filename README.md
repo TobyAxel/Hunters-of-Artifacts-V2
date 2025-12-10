@@ -1,80 +1,172 @@
+# Game API Endpoints
+
+## Base URL
+`http://127.0.0.1:3000`
+
 ## Endpoints
 
-### GET
+### Games
 
-- /games/game_id
-  - Gets games by id, or all games if no id is given
-- /games/game_id/players
-  - Gets all players in specified game
-- /events/game_id
-  - Gets current event's state
-- /shop/game_id
-  - Get all items in current game's shop
-- /game/[int:game_id](int:player_id)/airports?max_distance_km=1000
-  - Lists airports sorted from closest to farthest
-  - max_distance_km is an optional parameter, distance is unlimited if not specified
-- /game/[int:game_id](int:player_id)/travel?arr_ident=EETN
-  - Get travel information
-
-### POST
-
-- /games
-  - Creates new game with provided info, which is to be provided in JSON format, below is example of body content
-    ```
-    {
-        "players": ["Player 1", "Player 2", "Player 3"],
-        "config": {
-            "max_round": int,
-            "modifier": int,
-            "starting_distance": int,
-            "starting_balance": int,
-            "starting_location": string (in form of ident)
-        }
-    }
-    ```
-- /games/game_id/end-turn
-  - Ends player's turn, and returns next turn's relevant info
-- /events/game_id
-  - Updates event by running users option, or creates new event if none exists
-  - Disallows starting event if no moves are left
-  - Returns new event state
-    ```
-    {
-        "event_option": int
-    }
-    ```
-- /shop/game_id
-  - Attempts to purchase the item
-  - Returns whether purchase succeeded
-    ```
-    {
-        "item_id": int
-    }
-    ```
-- /items/game_id
-  - Attempts to use item via given name
-    ```
-    {
-        "item_name": "Item name"
-    }
-    ```
-- /game/[int:player_id](int:player_id)/travel?arr_ident=EETN
-  - Travel player an airport
-
-## Backend endpoint TODO
-
-- Handle items
-- Handle scoring
-- Get player whose turn it is
-
-## NOTE
-
-- Haven't updated dump yet, run this in mariadb
-
+#### Get All Games
 ```
-ALTER TABLE game ADD archived bool;
-ALTER TABLE game ADD name varchar(255) NOT NULL;
-ALTER TABLE game ADD created_at DATETIME NOT NULL DEFAULT NOW();
-alter table game add column event_id int;
-alter table game add column event_state int;
+GET /games
 ```
+Returns all non-archived games.
+
+#### Create New Game
+```
+POST /games
+```
+**Request Body:**
+```json
+{
+  "name": "Game Name",
+  "players": ["Player1", "Player2", "Player3"],
+  "config": {
+    "max_round": 10,
+    "modifier": 1.0,
+    "starting_distance": 0,
+    "starting_balance": 5000,
+    "starting_location": "EFHK"
+  }
+}
+```
+
+#### Get Specific Game
+```
+GET /games/<game_id>
+```
+Returns game details by ID.
+
+---
+
+### Players
+
+#### Get Players in Game
+```
+GET /games/<game_id>/players
+```
+Returns all players in the specified game.
+
+#### Get Player's Items
+```
+GET /games/<game_id>/player/items
+```
+Returns current player's inventory with item descriptions.
+
+#### Use Item
+```
+POST /games/<game_id>/player/items/<item_name>/use-item
+```
+Uses an item from current player's inventory. Item must be usable.
+
+#### Get Active Effects
+```
+GET /games/<game_id>/player/active-effects
+```
+Returns current player's active effects.
+
+---
+
+### Events
+
+#### Get Current Event
+```
+GET /games/<game_id>/event
+```
+Returns current event text and available choices. If no event is active, returns "No active event."
+
+#### Create/Update Event
+```
+POST /games/<game_id>/event
+```
+**Request Body:**
+```json
+{
+  "event_option": 1
+}
+```
+- If no active event: Creates new event (costs 1 move)
+- If active event: Selects the specified option and progresses event
+- Returns next event state or "final" when event completes
+
+---
+
+### Shop
+
+#### Get Shop Items
+```
+GET /games/<game_id>/shop
+```
+Returns available shop items based on current round progress:
+- Round ≤25%: Common items only
+- Round ≤50%: Common + Rare items
+- Round ≤75%: Common + Rare + Epic items
+- Round >75%: All items (including Legendary)
+
+#### Buy Item
+```
+POST /games/<game_id>/shop
+```
+**Request Body:**
+```json
+{
+  "item_id": 0
+}
+```
+Purchases item at specified index from shop. Deducts price from player balance.
+
+---
+
+### Travel
+
+#### Get Airports
+```
+GET /games/<game_id>/airports?max_distance_km=<number>
+```
+**Query Parameters:**
+- `max_distance_km` (optional): Filter airports within this distance
+
+Returns list of available airports.
+
+#### Get Travel Info
+```
+GET /games/<game_id>/travel?arr_ident=<code>
+```
+**Query Parameters:**
+- `arr_ident` (required): Airport identifier code (e.g., "EFHK")
+
+Returns travel details including price and distance.
+
+#### Travel to Airport
+```
+POST /games/<game_id>/travel?arr_ident=<code>
+```
+**Query Parameters:**
+- `arr_ident` (required): Airport identifier code
+
+Moves player to specified airport. Deducts travel price and 1 move.
+
+---
+
+### Game Actions
+
+#### End Turn
+```
+POST /games/<game_id>/end-turn
+```
+Ends current player's turn and:
+- Lowers active effect durations
+- Moves to next player
+- Increments round if all players completed turn
+- Resets moves (base 2, modified by items/effects)
+- Clears event state
+- Ends game if max rounds reached
+
+Returns updated game state or end game results.
+
+#### Get Artifacts
+```
+GET /games/<game_id>/artifacts
+```
+Returns all artifact items grouped by player screen name.
