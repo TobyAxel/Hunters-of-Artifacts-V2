@@ -24,12 +24,6 @@ def get_players(game_id):
     results = rows_to_dicts(rows)
     return results
 
-def get_player(player_id):
-    cursor.execute("SELECT * FROM player WHERE id = %s", (player_id,))
-    rows = cursor.fetchall()
-    results = rows_to_dicts(rows)
-    return results
-
 def get_current_player(game_id):
     cursor.execute("SELECT * FROM player INNER JOIN game ON game.player_turn = player.id WHERE game.id = %s", (game_id,))
     rows = cursor.fetchall()
@@ -54,8 +48,8 @@ def get_event(game_id):
 
     return {"text": event.states[results[0]['event_state']].text, "choices": choices}
 
-def get_items(player_id):
-    cursor.execute("SELECT * FROM item WHERE player_id = %s", [player_id,])
+def get_items(game_id):
+    cursor.execute("SELECT * FROM item WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
     rows = cursor.fetchall()
     results = rows_to_dicts(rows)
 
@@ -67,8 +61,8 @@ def get_items(player_id):
 
     return results
 
-def get_active_effects(player_id):
-    cursor.execute("SELECT * FROM active_effect WHERE player_id = %s", [player_id,])
+def get_active_effects(game_id):
+    cursor.execute("SELECT * FROM active_effect WHERE player_id = (SELECT player_turn FROM game WHERE id = %s)", (game_id,))
     rows = cursor.fetchall()
     results = rows_to_dicts(rows)
 
